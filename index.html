@@ -90,7 +90,7 @@
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                        <button type="submit" class="btn btn-primary btn-lg px-5">Guardar Registro <i class="fas fa-save ms-2"></i></button>
+                        <button type="submit" id="btnGuardar" class="btn btn-primary btn-lg px-5">Guardar Registro <i class="fas fa-save ms-2"></i></button>
                     </div>
                 </form>
             </div>
@@ -100,22 +100,26 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // URLs de tus Google Apps Scripts
     const URL_CENSO = "https://script.google.com/macros/s/AKfycbxndAilJNezsSb2LCOCprkA44edF3mEfKKs7R0TUhx3ceKzQzCAU0ae1vhpCghXyg2S/exec";
-    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbx5u0YLVH37cOAgXkGfOOCNwkuCuOdn27BElO47HNHTOwzXNj2x8AZ1dQcmhr57aoNz/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbyh0-8OhIbtHl2XGw3QTB_2AwpaVp0Ji_nNQ4KOvxPSQ9VU06h1uL_mh3TGvfqAcEI8/exec"; // <--- PEGA AQUÍ LA URL DE TU SCRIPT DE REGISTRO
 
     function buscarCenso() {
         let dni = document.getElementById('dni').value;
         if(!dni) return Swal.fire("Atención", "Ingrese un DNI", "warning");
 
+        Swal.fire({ title: 'Buscando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+
         fetch(`${URL_CENSO}?dni=${dni}`)
             .then(res => res.json())
             .then(data => {
+                Swal.close();
                 if (data.status === "error") {
                     Swal.fire("No encontrado", "Debe ingresar sus datos al módulo Censo", "error");
                     document.getElementById('registroForm').reset();
                 } else {
                     document.getElementById('nombreCompleto').value = data.nombres;
-                    document.getElementById('fn').value = data.fn; // Formato YYYY-MM-DD
+                    document.getElementById('fn').value = data.fn; 
                     document.getElementById('sexo').value = data.sexo;
                     document.getElementById('hc').value = data.hc;
                     document.getElementById('fichaFamiliar').value = data.ficha;
@@ -123,14 +127,20 @@
                     document.getElementById('sector').value = data.sector;
                     calcularEdad();
                 }
+            })
+            .catch(err => {
+                Swal.fire("Error", "No se pudo conectar con el servidor del Censo", "error");
             });
     }
 
     function calcularEdad() {
-        let fAtencion = new Date(document.getElementById('fechaAtencion').value);
-        let fNacimiento = new Date(document.getElementById('fn').value);
+        let valAtencion = document.getElementById('fechaAtencion').value;
+        let valNacimiento = document.getElementById('fn').value;
+        
+        if (!valAtencion || !valNacimiento) return;
 
-        if (!fAtencion || !fNacimiento || isNaN(fAtencion) || isNaN(fNacimiento)) return;
+        let fAtencion = new Date(valAtencion + "T00:00:00");
+        let fNacimiento = new Date(valNacimiento + "T00:00:00");
 
         let anos = fAtencion.getFullYear() - fNacimiento.getFullYear();
         let meses = fAtencion.getMonth() - fNacimiento.getMonth();
@@ -150,8 +160,52 @@
     // Lógica para enviar datos a la hoja de Registro (URL Registro)
     document.getElementById('registroForm').onsubmit = function(e) {
         e.preventDefault();
-        // Aquí se enviaría el objeto con todas las columnas A-Z
-        Swal.fire("Éxito", "Datos enviados a la hoja Registro", "success");
+        
+        const btn = document.getElementById('btnGuardar');
+        btn.disabled = true;
+        btn.innerHTML = "Enviando... <i class='fas fa-spinner fa-spin ms-2'></i>";
+
+        // Recopilar todos los datos del formulario
+        const datos = {
+            fechaAtencion: document.getElementById('fechaAtencion').value,
+            nombreCompleto: document.getElementById('nombreCompleto').value,
+            dni: document.getElementById('dni').value,
+            fn: document.getElementById('fn').value,
+            sexo: document.getElementById('sexo').value,
+            edad: document.getElementById('edad').value,
+            hc: document.getElementById('hc').value,
+            ficha: document.getElementById('fichaFamiliar').value,
+            telefono: document.getElementById('telefono').value,
+            sector: document.getElementById('sector').value,
+            cred: document.getElementById('cred').value,
+            peso: document.getElementById('peso').value,
+            talla: document.getElementById('talla').value,
+            imc: document.getElementById('imc').value,
+            hb: document.getElementById('hb').value,
+            suplHierro: document.getElementById('suplHierro').value
+        };
+
+        // Convertir objeto a parámetros de URL
+        const params = new URLSearchParams(datos).toString();
+
+        fetch(`${URL_REGISTRO}?${params}`)
+            .then(res => res.json())
+            .then(result => {
+                if(result.status === "success") {
+                    Swal.fire("Éxito", "Datos enviados al Registro Diario correctamente", "success");
+                    document.getElementById('registroForm').reset();
+                    document.getElementById('edad').value = "";
+                } else {
+                    Swal.fire("Error", "El servidor respondió con un error: " + result.message, "error");
+                }
+            })
+            .catch(err => {
+                Swal.fire("Error de Conexión", "No se pudo enviar los datos. Revisa la configuración de la URL de Registro.", "error");
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerHTML = "Guardar Registro <i class='fas fa-save ms-2'></i>";
+            });
     };
 </script>
 </body>
