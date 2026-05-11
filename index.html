@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Atención Infantil</title>
+    <title>Registro de Atención Infantil - SIGIS_FED</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -13,14 +13,13 @@
         .btn-search { background-color: #2c3e50; color: white; transition: 0.3s; }
         .btn-search:hover { background-color: #34495e; color: white; }
         .form-label { font-weight: 500; font-size: 0.9rem; color: #555; }
-        .age-display { font-size: 0.85rem; color: #0d6efd; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-lg-10">
+        <div class="col-lg-11">
             <div class="card p-4">
                 <h3 class="text-center mb-4"><i class="fas fa-clipboard-list me-2"></i>Modelo de Registro de Atención</h3>
                 
@@ -35,7 +34,7 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Fecha de Atención (A)</label>
-                            <input type="date" id="fechaAtencion" class="form-control" onchange="calcularEdad()" required>
+                            <input type="date" id="fechaAtencion" class="form-control" onchange="actualizarFechas()" required>
                         </div>
                     </div>
 
@@ -86,7 +85,74 @@
                         <div class="col-md-2"><label class="form-label">Talla (M)</label><input type="text" id="talla" class="form-control"></div>
                         <div class="col-md-2"><label class="form-label">IMC (N)</label><input type="text" id="imc" class="form-control"></div>
                         <div class="col-md-2"><label class="form-label">Hb (O)</label><input type="text" id="hb" class="form-control"></div>
-                        <div class="col-md-2"><label class="form-label">Supl. Hierro (P)</label><input type="text" id="suplHierro" class="form-control"></div>
+                        <div class="col-md-2">
+                            <label class="form-label">Supl. Hierro (P)</label>
+                            <select id="suplHierro" class="form-select">
+                                <option value="">Seleccione...</option>
+                                <option>Sulfato Ferroso en gotas</option>
+                                <option>Hierro Polimaltosado en gotas</option>
+                                <option>Sulfato Ferroso en jarabe</option>
+                                <option>Hierro Polimaltosado en jarabe</option>
+                                <option>Mutimicronutrientes 1 g (sobres)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="section-title">Tratamiento, Vacunas y Citas</div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-2"><label class="form-label">N° Unid. Hierro</label><input type="number" id="unidadesHierro" class="form-control"></div>
+                        <div class="col-md-2">
+                            <label class="form-label">Motivo Hierro</label>
+                            <select id="motivoHierro" class="form-select">
+                                <option>Preventivo</option>
+                                <option>Tratamiento</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2"><label class="form-label">N° Mes Hierro</label><input type="number" id="mesHierro" class="form-control" min="1" max="7"></div>
+                        <div class="col-md-4">
+                            <label class="form-label">Antiparasitario</label>
+                            <select id="antiparasitario" class="form-select">
+                                <option value="">Ninguno</option>
+                                <option>Albendazol en Jarabe</option>
+                                <option>Mebendazol en Jarabe</option>
+                                <option>Albendazol en Tableta</option>
+                                <option>Mebendazol en Tableta</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2"><label class="form-label">Unid. Antip.</label><input type="number" id="unidadesAntip" class="form-control"></div>
+                        <div class="col-md-3">
+                            <label class="form-label">N° Vitamina A</label>
+                            <select id="vitaminaA" class="form-select">
+                                <option value="">Seleccione...</option>
+                                <option>100000 UI</option>
+                                <option>200000 UI</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Vacunado</label>
+                            <select id="vacunado" class="form-select">
+                                <option value="No">No</option>
+                                <option value="Si">Si</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Fecha Cita</label>
+                            <input type="date" id="fechaCita" class="form-control">
+                        </div>
+                    </div>
+
+                    <div class="section-title">Responsables de Atención</div>
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label">Esp. Infantil (Buscador)</label>
+                            <input type="text" id="espInfantil" class="form-control" list="listEsp" placeholder="Escriba para buscar...">
+                            <datalist id="listEsp"></datalist>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Asist. Especialidad (Buscador)</label>
+                            <input type="text" id="asistEspecialidad" class="form-control" list="listAsist" placeholder="Escriba para buscar...">
+                            <datalist id="listAsist"></datalist>
+                        </div>
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
@@ -100,9 +166,38 @@
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    // URLs de tus Google Apps Scripts
     const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
-    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbzGC6hMeR4BthV3MfVbWLytZXbvEvW4Gp9p1uBFPfOB1SVSiHNwfkhaRv428I9ZXsK0/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbwUK1-DxYxeZcm11KEU-bKLmAsz2GG_xlnpMfm1jQaNzV6x84ey712aQzPM_Lgml1Gk/exec";
+
+    // Inicialización al cargar la página
+    window.onload = function() {
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('fechaAtencion').value = hoy;
+        actualizarFechas(); // Calcula cita +30 automáticamente
+        cargarListasExcel();
+    };
+
+    function actualizarFechas() {
+        const fAtencion = document.getElementById('fechaAtencion').value;
+        if (fAtencion) {
+            let fecha = new Date(fAtencion + "T00:00:00");
+            fecha.setDate(fecha.getDate() + 30);
+            document.getElementById('fechaCita').value = fecha.toISOString().split('T')[0];
+            calcularEdad();
+        }
+    }
+
+    function cargarListasExcel() {
+        fetch(`${URL_REGISTRO}?getLists=true`)
+            .then(res => res.json())
+            .then(data => {
+                const dlEsp = document.getElementById('listEsp');
+                const dlAsist = document.getElementById('listAsist');
+                data.especialistas.forEach(item => { if(item) dlEsp.innerHTML += `<option value="${item}">`; });
+                data.asistentes.forEach(item => { if(item) dlAsist.innerHTML += `<option value="${item}">`; });
+            })
+            .catch(err => console.error("Error cargando listas:", err));
+    }
 
     function buscarCenso() {
         let dni = document.getElementById('dni').value;
@@ -115,9 +210,8 @@
             .then(data => {
                 Swal.close();
                 if (data.status === "error" || !data.nombreB) {
-                    Swal.fire("No encontrado", "DNI no existe en Censo o falta registrar datos", "error");
+                    Swal.fire("No encontrado", "DNI no existe en Censo", "error");
                 } else {
-                    // Mapeo corregido según las variables de tu Script del Censo
                     document.getElementById('nombreCompleto').value = data.nombreB;
                     document.getElementById('sexo').value = data.sexo;
                     document.getElementById('hc').value = data.hclinica;
@@ -125,50 +219,37 @@
                     document.getElementById('telefono').value = data.telefono;
                     document.getElementById('sector').value = data.sector;
 
-                    // Procesar Fecha: de dd/MM/yyyy a yyyy-MM-dd para el INPUT
                     if (data.fn && data.fn.includes('/')) {
                         let partes = data.fn.split('/');
-                        let fechaISO = `${partes[2]}-${partes[1]}-${partes[0]}`;
-                        document.getElementById('fn').value = fechaISO;
+                        document.getElementById('fn').value = `${partes[2]}-${partes[1]}-${partes[0]}`;
                     } else {
                         document.getElementById('fn').value = data.fn;
                     }
-                    
                     calcularEdad();
                 }
             })
-            .catch(err => {
-                Swal.fire("Error", "No se pudo conectar con el servidor del Censo. Verifique la publicación del Script.", "error");
-            });
+            .catch(() => Swal.fire("Error", "Fallo al conectar con Censo", "error"));
     }
 
     function calcularEdad() {
         let valAtencion = document.getElementById('fechaAtencion').value;
         let valNacimiento = document.getElementById('fn').value;
-        
         if (!valAtencion || !valNacimiento) return;
 
-        let fAtencion = new Date(valAtencion + "T00:00:00");
-        let fNacimiento = new Date(valNacimiento + "T00:00:00");
+        let fAt = new Date(valAtencion + "T00:00:00");
+        let fNa = new Date(valNacimiento + "T00:00:00");
 
-        let anos = fAtencion.getFullYear() - fNacimiento.getFullYear();
-        let meses = fAtencion.getMonth() - fNacimiento.getMonth();
-        let dias = fAtencion.getDate() - fNacimiento.getDate();
+        let anos = fAt.getFullYear() - fNa.getFullYear();
+        let meses = fAt.getMonth() - fNa.getMonth();
+        let dias = fAt.getDate() - fNa.getDate();
 
-        if (dias < 0) {
-            meses--;
-            dias += new Date(fAtencion.getFullYear(), fAtencion.getMonth(), 0).getDate();
-        }
-        if (meses < 0) {
-            anos--;
-            meses += 12;
-        }
+        if (dias < 0) { meses--; dias += new Date(fAt.getFullYear(), fAt.getMonth(), 0).getDate(); }
+        if (meses < 0) { anos--; meses += 12; }
         document.getElementById('edad').value = `${anos} años, ${meses} meses, ${dias} días`;
     }
 
     document.getElementById('registroForm').onsubmit = function(e) {
         e.preventDefault();
-        
         const btn = document.getElementById('btnGuardar');
         btn.disabled = true;
         btn.innerHTML = "Enviando... <i class='fas fa-spinner fa-spin ms-2'></i>";
@@ -189,21 +270,28 @@
             talla: document.getElementById('talla').value,
             imc: document.getElementById('imc').value,
             hb: document.getElementById('hb').value,
-            suplHierro: document.getElementById('suplHierro').value
+            suplHierro: document.getElementById('suplHierro').value,
+            unidadesHierro: document.getElementById('unidadesHierro').value,
+            motivoHierro: document.getElementById('motivoHierro').value,
+            mesHierro: document.getElementById('mesHierro').value,
+            antiparasitario: document.getElementById('antiparasitario').value,
+            unidadesAntip: document.getElementById('unidadesAntip').value,
+            vitaminaA: document.getElementById('vitaminaA').value,
+            vacunado: document.getElementById('vacunado').value,
+            fechaCita: document.getElementById('fechaCita').value,
+            espInfantil: document.getElementById('espInfantil').value,
+            asistEspecialidad: document.getElementById('asistEspecialidad').value
         };
 
         const params = new URLSearchParams(datos).toString();
 
-        // Usamos mode: 'no-cors' para evitar bloqueos del navegador al escribir en Google Sheets
         fetch(`${URL_REGISTRO}?${params}`, { method: 'GET', mode: 'no-cors' })
             .then(() => {
-                Swal.fire("Éxito", "Datos enviados al Registro Diario correctamente", "success");
+                Swal.fire("Éxito", "Registro guardado correctamente", "success");
                 document.getElementById('registroForm').reset();
-                document.getElementById('edad').value = "";
+                window.onload(); // Reinicia fechas por defecto
             })
-            .catch(err => {
-                Swal.fire("Error", "No se pudo enviar los datos. Verifique la conexión.", "error");
-            })
+            .catch(() => Swal.fire("Error", "No se pudo guardar", "error"))
             .finally(() => {
                 btn.disabled = false;
                 btn.innerHTML = "Guardar Registro <i class='fas fa-save ms-2'></i>";
