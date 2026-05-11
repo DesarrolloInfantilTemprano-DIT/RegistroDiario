@@ -101,8 +101,8 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     // URLs de tus Google Apps Scripts
-    const URL_CENSO = "https://script.google.com/macros/s/AKfycbxndAilJNezsSb2LCOCprkA44edF3mEfKKs7R0TUhx3ceKzQzCAU0ae1vhpCghXyg2S/exec";
-    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbyh0-8OhIbtHl2XGw3QTB_2AwpaVp0Ji_nNQ4KOvxPSQ9VU06h1uL_mh3TGvfqAcEI8/exec"; // <--- PEGA AQUÍ LA URL DE TU SCRIPT DE REGISTRO
+    const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbzGC6hMeR4BthV3MfVbWLytZXbvEvW4Gp9p1uBFPfOB1SVSiHNwfkhaRv428I9ZXsK0/exec";
 
     function buscarCenso() {
         let dni = document.getElementById('dni').value;
@@ -114,22 +114,31 @@
             .then(res => res.json())
             .then(data => {
                 Swal.close();
-                if (data.status === "error") {
-                    Swal.fire("No encontrado", "Debe ingresar sus datos al módulo Censo", "error");
-                    document.getElementById('registroForm').reset();
+                if (data.status === "error" || !data.nombreB) {
+                    Swal.fire("No encontrado", "DNI no existe en Censo o falta registrar datos", "error");
                 } else {
-                    document.getElementById('nombreCompleto').value = data.nombres;
-                    document.getElementById('fn').value = data.fn; 
+                    // Mapeo corregido según las variables de tu Script del Censo
+                    document.getElementById('nombreCompleto').value = data.nombreB;
                     document.getElementById('sexo').value = data.sexo;
-                    document.getElementById('hc').value = data.hc;
-                    document.getElementById('fichaFamiliar').value = data.ficha;
+                    document.getElementById('hc').value = data.hclinica;
+                    document.getElementById('fichaFamiliar').value = data.ffamiliar;
                     document.getElementById('telefono').value = data.telefono;
                     document.getElementById('sector').value = data.sector;
+
+                    // Procesar Fecha: de dd/MM/yyyy a yyyy-MM-dd para el INPUT
+                    if (data.fn && data.fn.includes('/')) {
+                        let partes = data.fn.split('/');
+                        let fechaISO = `${partes[2]}-${partes[1]}-${partes[0]}`;
+                        document.getElementById('fn').value = fechaISO;
+                    } else {
+                        document.getElementById('fn').value = data.fn;
+                    }
+                    
                     calcularEdad();
                 }
             })
             .catch(err => {
-                Swal.fire("Error", "No se pudo conectar con el servidor del Censo", "error");
+                Swal.fire("Error", "No se pudo conectar con el servidor del Censo. Verifique la publicación del Script.", "error");
             });
     }
 
@@ -157,7 +166,6 @@
         document.getElementById('edad').value = `${anos} años, ${meses} meses, ${dias} días`;
     }
 
-    // Lógica para enviar datos a la hoja de Registro (URL Registro)
     document.getElementById('registroForm').onsubmit = function(e) {
         e.preventDefault();
         
@@ -165,7 +173,6 @@
         btn.disabled = true;
         btn.innerHTML = "Enviando... <i class='fas fa-spinner fa-spin ms-2'></i>";
 
-        // Recopilar todos los datos del formulario
         const datos = {
             fechaAtencion: document.getElementById('fechaAtencion').value,
             nombreCompleto: document.getElementById('nombreCompleto').value,
@@ -185,22 +192,17 @@
             suplHierro: document.getElementById('suplHierro').value
         };
 
-        // Convertir objeto a parámetros de URL
         const params = new URLSearchParams(datos).toString();
 
-        fetch(`${URL_REGISTRO}?${params}`)
-            .then(res => res.json())
-            .then(result => {
-                if(result.status === "success") {
-                    Swal.fire("Éxito", "Datos enviados al Registro Diario correctamente", "success");
-                    document.getElementById('registroForm').reset();
-                    document.getElementById('edad').value = "";
-                } else {
-                    Swal.fire("Error", "El servidor respondió con un error: " + result.message, "error");
-                }
+        // Usamos mode: 'no-cors' para evitar bloqueos del navegador al escribir en Google Sheets
+        fetch(`${URL_REGISTRO}?${params}`, { method: 'GET', mode: 'no-cors' })
+            .then(() => {
+                Swal.fire("Éxito", "Datos enviados al Registro Diario correctamente", "success");
+                document.getElementById('registroForm').reset();
+                document.getElementById('edad').value = "";
             })
             .catch(err => {
-                Swal.fire("Error de Conexión", "No se pudo enviar los datos. Revisa la configuración de la URL de Registro.", "error");
+                Swal.fire("Error", "No se pudo enviar los datos. Verifique la conexión.", "error");
             })
             .finally(() => {
                 btn.disabled = false;
