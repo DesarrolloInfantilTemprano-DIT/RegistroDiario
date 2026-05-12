@@ -19,6 +19,7 @@
         .table-kardex { font-size: 0.82rem; }
         .table-kardex th { background: #2c3e50 !important; color: white !important; text-align: center; vertical-align: middle; }
         .fecha-click { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
+        .bg-info-subtle { background-color: #e3f2fd !important; }
     </style>
 </head>
 <body>
@@ -236,6 +237,7 @@
             .then(d => {
                 const lE = document.getElementById('listEsp');
                 const lA = document.getElementById('listAsist');
+                lE.innerHTML = ""; lA.innerHTML = "";
                 d.especialistas.forEach(e => lE.innerHTML += `<option value="${e}">`);
                 d.asistentes.forEach(a => lA.innerHTML += `<option value="${a}">`);
             });
@@ -256,6 +258,9 @@
                     let p = d.fn.split('/'); document.getElementById('fn').value = `${p[2]}-${p[1]}-${p[0]}`;
                 } else { document.getElementById('fn').value = d.fn; }
                 calcularEdad();
+                Swal.fire({icon:'success', title:'Paciente encontrado', text: d.nombreB, timer:1500, showConfirmButton:false});
+            } else {
+                Swal.fire("Aviso", "El DNI no existe en el Padrón Nominal", "warning");
             }
         });
     }
@@ -288,6 +293,8 @@
     }
 
     function filtrarHistorial() {
+        const b = document.getElementById('cuerpoHistorial');
+        b.innerHTML = "<tr><td colspan='5' class='text-center'>Buscando...</td></tr>";
         const params = new URLSearchParams({
             getHistorial: true,
             fDesde: document.getElementById('fDesde').value,
@@ -296,8 +303,7 @@
         });
         fetch(`${URL_REGISTRO}?${params}`).then(r => r.json()).then(d => {
             historialGlobal = d;
-            const b = document.getElementById('cuerpoHistorial');
-            b.innerHTML = d.length ? "" : "<tr><td colspan='5'>Sin resultados</td></tr>";
+            b.innerHTML = d.length ? "" : "<tr><td colspan='5' class='text-center'>Sin resultados</td></tr>";
             d.forEach((r, i) => {
                 b.innerHTML += `<tr><td>${r.fechaAtencion}</td><td>${r.dni}</td><td>${r.nombreCompleto}</td><td>${r.motivoHierro}</td><td><i class='fas fa-edit btn-edit' onclick='cargarEdit(${i})'></i></td></tr>`;
             });
@@ -305,6 +311,8 @@
     }
 
     function cargarKardex() {
+        const b = document.getElementById('cuerpoKardex');
+        b.innerHTML = "<tr><td colspan='9' class='text-center'>Procesando...</td></tr>";
         const params = new URLSearchParams({
             getVistaHorizontal: true,
             fDesde: document.getElementById('kDesde').value,
@@ -312,7 +320,6 @@
             fBusqueda: document.getElementById('kBusq').value.toLowerCase()
         });
         fetch(`${URL_REGISTRO}?${params}`).then(r => r.json()).then(d => {
-            const b = document.getElementById('cuerpoKardex');
             b.innerHTML = "";
             d.forEach(n => {
                 let f = `<tr><td class='small'><b>${n.nombre}</b></td><td>${n.dni}</td>`;
@@ -372,7 +379,7 @@
     document.getElementById('registroForm').onsubmit = function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnGuardar');
-        btn.disabled = true; btn.innerHTML = "Guardando...";
+        btn.disabled = true; btn.innerHTML = "<span class='spinner-border spinner-border-sm'></span> Guardando...";
         
         const d = {
             rowId: document.getElementById('rowId').value,
@@ -405,8 +412,13 @@
         };
 
         fetch(`${URL_REGISTRO}?${new URLSearchParams(d)}`, {mode:'no-cors'})
-            .then(() => { Swal.fire("Éxito", "Guardado", "success"); limpiarFormulario(); })
-            .finally(() => { btn.disabled=false; btn.innerHTML="Guardar Registro"; });
+            .then(() => { 
+                Swal.fire("¡Éxito!", "La atención ha sido registrada correctamente.", "success"); 
+                limpiarFormulario();
+                filtrarHistorial(); 
+            })
+            .catch(() => Swal.fire("Error", "No se pudo guardar el registro", "error"))
+            .finally(() => { btn.disabled=false; btn.innerHTML="Guardar Registro <i class='fas fa-save ms-1'></i>"; });
     };
 </script>
 </body>
