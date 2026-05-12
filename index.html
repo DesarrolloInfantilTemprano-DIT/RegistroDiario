@@ -14,6 +14,10 @@
         .btn-search:hover { background-color: #34495e; color: white; }
         .form-label { font-weight: 500; font-size: 0.9rem; color: #555; }
         .req-color { color: #d9534f; font-weight: bold; }
+        /* Estilos para el historial */
+        .table-container { max-height: 400px; overflow-y: auto; }
+        .btn-edit { color: #3498db; cursor: pointer; font-size: 1.2rem; }
+        .btn-edit:hover { color: #2980b9; }
     </style>
 </head>
 <body>
@@ -21,10 +25,12 @@
 <div class="container py-5">
     <div class="row justify-content-center">
         <div class="col-lg-11">
-            <div class="card p-4">
+            <div class="card p-4 mb-5">
                 <h3 class="text-center mb-4"><i class="fas fa-clipboard-list me-2"></i>Registro de Atención DIT </h3>
                 
                 <form id="registroForm">
+                    <input type="hidden" id="rowId" value="">
+
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <label class="form-label">Consultar por DNI</label>
@@ -129,7 +135,7 @@
                                 <option>Mebendazol en Tableta</option>
                             </select>
                         </div>
-                        <div class="col-md-2"><label class="form-label">N° Unid. Antip.</label><input type="number" id="unidadesAntip" class="form-control"></div>
+                        <div class="col-md-2"><label class="form-label">Unid. Antip.</label><input type="number" id="unidadesAntip" class="form-control"></div>
                         <div class="col-md-3">
                             <label class="form-label">N° Vitamina A</label>
                             <select id="vitaminaA" class="form-select">
@@ -166,10 +172,37 @@
                     </div>
 
                     <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                        <button type="button" class="btn btn-secondary btn-lg px-4" onclick="limpiarFormulario()">Limpiar / Nuevo</button>
                         <button type="submit" id="btnGuardar" class="btn btn-primary btn-lg px-5">Guardar Registro <i class="fas fa-save ms-2"></i></button>
                     </div>
                 </form>
             </div>
+
+            <div class="card p-4">
+                <div class="section-title d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-history me-2"></i>Historial de Atenciones</span>
+                    <div class="d-flex gap-2 w-50">
+                        <input type="text" id="busquedaHistorial" class="form-control" placeholder="Buscar por DNI, Fecha o Motivo..." onkeyup="filtrarHistorial()">
+                        <button class="btn btn-search" onclick="cargarHistorial()"><i class="fas fa-sync-alt"></i></button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="table table-hover table-striped">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>DNI</th>
+                                <th>Paciente</th>
+                                <th>Motivo Hierro</th>
+                                <th>Acción</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tablaCuerpo">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -177,28 +210,26 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
-    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbwUK1-DxYxeZcm11KEU-bKLmAsz2GG_xlnpMfm1jQaNzV6x84ey712aQzPM_Lgml1Gk/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbxp4fAT0Bwjq6X9ksglyacvmuDBjQ6KGP-MpYOheNjZnQK2aT6f_PSlmkkYGskzRDSf/exec";
+
+    let historialCompleto = [];
 
     window.onload = function() {
         const hoy = new Date().toISOString().split('T')[0];
         document.getElementById('fechaAtencion').value = hoy;
         actualizarFechas(); 
         cargarListasExcel();
+        cargarHistorial(); 
     };
 
-    // --- MEJORA: Cálculo de IMC Automático ---
     function calcularIMC() {
         const peso = parseFloat(document.getElementById('peso').value);
         const talla = parseFloat(document.getElementById('talla').value);
         const imcField = document.getElementById('imc');
-        
         if (peso > 0 && talla > 0) {
-            // Fórmula: Peso / (Talla^2). Talla debe estar en metros (ej. 1.10)
             const imc = peso / (talla * talla);
             imcField.value = imc.toFixed(2);
-        } else {
-            imcField.value = "";
-        }
+        } else { imcField.value = ""; }
     }
 
     function actualizarFechas() {
@@ -217,70 +248,138 @@
             .then(data => {
                 const dlEsp = document.getElementById('listEsp');
                 const dlAsist = document.getElementById('listAsist');
-                dlEsp.innerHTML = "";
-                dlAsist.innerHTML = "";
+                dlEsp.innerHTML = ""; dlAsist.innerHTML = "";
                 data.especialistas.forEach(item => { if(item) dlEsp.innerHTML += `<option value="${item}">`; });
                 data.asistentes.forEach(item => { if(item) dlAsist.innerHTML += `<option value="${item}">`; });
             })
             .catch(err => console.error("Error cargando listas:", err));
     }
 
+    // --- CARGAR HISTORIAL ---
+    function cargarHistorial() {
+        const tbody = document.getElementById('tablaCuerpo');
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">Cargando datos...</td></tr>';
+        
+        fetch(`${URL_REGISTRO}?getHistorial=true`)
+            .then(res => res.json())
+            .then(data => {
+                historialCompleto = data;
+                dibujarTabla(data);
+            })
+            .catch(() => { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error al obtener historial</td></tr>'; });
+    }
+
+    function dibujarTabla(datos) {
+        const tbody = document.getElementById('tablaCuerpo');
+        tbody.innerHTML = "";
+        datos.forEach((reg, index) => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${reg.fechaAtencion}</td>
+                    <td>${reg.dni}</td>
+                    <td>${reg.nombreCompleto}</td>
+                    <td>${reg.motivoHierro}</td>
+                    <td class="text-center">
+                        <i class="fas fa-edit btn-edit" title="Editar este registro" onclick="llenarParaEditar(${index})"></i>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    function filtrarHistorial() {
+        const busqueda = document.getElementById('busquedaHistorial').value.toLowerCase();
+        const filtrados = historialCompleto.filter(reg => 
+            reg.dni.includes(busqueda) || 
+            reg.fechaAtencion.includes(busqueda) || 
+            reg.motivoHierro.toLowerCase().includes(busqueda)
+        );
+        dibujarTabla(filtrados);
+    }
+
+    // --- MODO EDICIÓN: Llenar formulario con datos del historial ---
+    function llenarParaEditar(index) {
+        const reg = historialCompleto[index];
+        
+        document.getElementById('rowId').value = reg.rowId; // Crucial para la actualización
+        document.getElementById('fechaAtencion').value = reg.fechaAtencion;
+        document.getElementById('dni').value = reg.dni;
+        document.getElementById('nombreCompleto').value = reg.nombreCompleto;
+        document.getElementById('fn').value = reg.fn;
+        document.getElementById('sexo').value = reg.sexo;
+        document.getElementById('hc').value = reg.hc;
+        document.getElementById('fichaFamiliar').value = reg.ficha;
+        document.getElementById('telefono').value = reg.telefono;
+        document.getElementById('sector').value = reg.sector;
+        document.getElementById('cred').value = reg.cred;
+        document.getElementById('peso').value = reg.peso;
+        document.getElementById('talla').value = reg.talla;
+        document.getElementById('imc').value = reg.imc;
+        document.getElementById('hb').value = reg.hb;
+        document.getElementById('suplHierro').value = reg.suplHierro;
+        document.getElementById('unidadesHierro').value = reg.unidadesHierro;
+        document.getElementById('motivoHierro').value = reg.motivoHierro;
+        document.getElementById('mesHierro').value = reg.mesHierro;
+        document.getElementById('antiparasitario').value = reg.antiparasitario;
+        document.getElementById('unidadesAntip').value = reg.unidadesAntip;
+        document.getElementById('vitaminaA').value = reg.vitaminaA;
+        document.getElementById('vacunado').value = reg.vacunado;
+        document.getElementById('fechaCita').value = reg.fechaCita;
+        document.getElementById('espInfantil').value = reg.espInfantil;
+        document.getElementById('asistEspecialidad').value = reg.asistEspecialidad;
+        
+        calcularEdad();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        Swal.fire("Modo Edición", "Puedes modificar los datos y guardar los cambios.", "info");
+    }
+
+    function limpiarFormulario() {
+        document.getElementById('registroForm').reset();
+        document.getElementById('rowId').value = "";
+        window.onload();
+    }
+
     function buscarCenso() {
         let dni = document.getElementById('dni').value;
         if(!dni) return Swal.fire("Atención", "Ingrese un DNI", "warning");
-
         Swal.fire({ title: 'Buscando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-
-        fetch(`${URL_CENSO}?dni=${dni}`)
-            .then(res => res.json())
-            .then(data => {
-                Swal.close();
-                if (data.status === "error" || !data.nombreB) {
-                    Swal.fire("No encontrado", "DNI no existe en Censo", "error");
-                } else {
-                    document.getElementById('nombreCompleto').value = data.nombreB;
-                    document.getElementById('sexo').value = data.sexo;
-                    document.getElementById('hc').value = data.hclinica;
-                    document.getElementById('fichaFamiliar').value = data.ffamiliar;
-                    document.getElementById('telefono').value = data.telefono;
-                    document.getElementById('sector').value = data.sector;
-
-                    if (data.fn && data.fn.includes('/')) {
-                        let partes = data.fn.split('/');
-                        document.getElementById('fn').value = `${partes[2]}-${partes[1]}-${partes[0]}`;
-                    } else {
-                        document.getElementById('fn').value = data.fn;
-                    }
-                    calcularEdad();
-                }
-            })
-            .catch(() => Swal.fire("Error", "Fallo al conectar con Censo", "error"));
+        fetch(`${URL_CENSO}?dni=${dni}`).then(res => res.json()).then(data => {
+            Swal.close();
+            if (data.status === "error" || !data.nombreB) {
+                Swal.fire("No encontrado", "DNI no existe en Censo", "error");
+            } else {
+                document.getElementById('nombreCompleto').value = data.nombreB;
+                document.getElementById('sexo').value = data.sexo;
+                document.getElementById('hc').value = data.hclinica;
+                document.getElementById('fichaFamiliar').value = data.ffamiliar;
+                document.getElementById('telefono').value = data.telefono;
+                document.getElementById('sector').value = data.sector;
+                if (data.fn && data.fn.includes('/')) {
+                    let p = data.fn.split('/'); document.getElementById('fn').value = `${p[2]}-${p[1]}-${p[0]}`;
+                } else { document.getElementById('fn').value = data.fn; }
+                calcularEdad();
+            }
+        }).catch(() => Swal.fire("Error", "Fallo al conectar", "error"));
     }
 
     function calcularEdad() {
-        let valAtencion = document.getElementById('fechaAtencion').value;
-        let valNacimiento = document.getElementById('fn').value;
-        if (!valAtencion || !valNacimiento) return;
-
-        let fAt = new Date(valAtencion + "T00:00:00");
-        let fNa = new Date(valNacimiento + "T00:00:00");
-
-        let anos = fAt.getFullYear() - fNa.getFullYear();
-        let meses = fAt.getMonth() - fNa.getMonth();
-        let dias = fAt.getDate() - fNa.getDate();
-
-        if (dias < 0) { meses--; dias += new Date(fAt.getFullYear(), fAt.getMonth(), 0).getDate(); }
-        if (meses < 0) { anos--; meses += 12; }
-        document.getElementById('edad').value = `${anos} años, ${meses} meses, ${dias} días`;
+        let vAt = document.getElementById('fechaAtencion').value;
+        let vNa = document.getElementById('fn').value;
+        if (!vAt || !vNa) return;
+        let fAt = new Date(vAt + "T00:00:00"); let fNa = new Date(vNa + "T00:00:00");
+        let a = fAt.getFullYear() - fNa.getFullYear(); let m = fAt.getMonth() - fNa.getMonth(); let d = fAt.getDate() - fNa.getDate();
+        if (d < 0) { m--; d += new Date(fAt.getFullYear(), fAt.getMonth(), 0).getDate(); }
+        if (m < 0) { a--; m += 12; }
+        document.getElementById('edad').value = `${a} años, ${m} meses, ${d} días`;
     }
 
     document.getElementById('registroForm').onsubmit = function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnGuardar');
         btn.disabled = true;
-        btn.innerHTML = "Enviando... <i class='fas fa-spinner fa-spin ms-2'></i>";
+        btn.innerHTML = "Guardar Registro <i class='fas fa-spinner fa-spin ms-2'></i>";
 
         const datos = {
+            rowId: document.getElementById('rowId').value,
             fechaAtencion: document.getElementById('fechaAtencion').value,
             nombreCompleto: document.getElementById('nombreCompleto').value,
             dni: document.getElementById('dni').value,
@@ -310,14 +409,13 @@
         };
 
         const params = new URLSearchParams(datos).toString();
-
         fetch(`${URL_REGISTRO}?${params}`, { method: 'GET', mode: 'no-cors' })
             .then(() => {
-                Swal.fire("Éxito", "Registro guardado correctamente", "success");
-                document.getElementById('registroForm').reset();
-                window.onload(); 
+                Swal.fire("Éxito", "Operación realizada correctamente", "success");
+                limpiarFormulario();
+                cargarHistorial(); 
             })
-            .catch(() => Swal.fire("Error", "No se pudo guardar", "error"))
+            .catch(() => Swal.fire("Error", "No se pudo procesar el registro", "error"))
             .finally(() => {
                 btn.disabled = false;
                 btn.innerHTML = "Guardar Registro <i class='fas fa-save ms-2'></i>";
