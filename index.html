@@ -14,10 +14,15 @@
         .btn-search:hover { background-color: #34495e; color: white; }
         .form-label { font-weight: 500; font-size: 0.9rem; color: #555; }
         .req-color { color: #d9534f; font-weight: bold; }
-        /* Estilos para el historial */
         .table-container { max-height: 400px; overflow-y: auto; }
         .btn-edit { color: #3498db; cursor: pointer; font-size: 1.2rem; }
         .btn-edit:hover { color: #2980b9; }
+        
+        /* Nuevos estilos para Kardex */
+        .table-kardex { font-size: 0.85rem; }
+        .table-kardex th { background: #2c3e50 !important; color: white !important; text-align: center; vertical-align: middle; }
+        .fecha-click { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
+        .mes-vacio { color: #ccc; font-style: italic; font-size: 0.75rem; text-align: center; }
     </style>
 </head>
 <body>
@@ -178,14 +183,63 @@
                 </form>
             </div>
 
-            <div class="card p-4">
+            <div class="card p-4 mb-5">
                 <div class="section-title d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-history me-2"></i>Historial de Atenciones</span>
-                    <div class="d-flex gap-2 w-50">
-                        <input type="text" id="busquedaHistorial" class="form-control" placeholder="Buscar por DNI, Fecha o Motivo..." onkeyup="filtrarHistorial()">
-                        <button class="btn btn-search" onclick="cargarHistorial()"><i class="fas fa-sync-alt"></i></button>
+                    <span><i class="fas fa-arrows-alt-h me-2"></i>Seguimiento Horizontal (Tratamiento de Hierro)</span>
+                    <button class="btn btn-sm btn-outline-primary" onclick="cargarVistaHorizontal()"><i class="fas fa-sync"></i> Actualizar Kardex</button>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-sm table-kardex table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nombres y Apellidos</th>
+                                <th>DNI</th>
+                                <th>MES-1</th>
+                                <th>MES-2</th>
+                                <th>MES-3</th>
+                                <th>MES-4</th>
+                                <th>MES-5</th>
+                                <th>MES-6</th>
+                                <th>MES-7</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cuerpoHorizontal"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="card p-4">
+                <div class="section-title"><i class="fas fa-search-plus me-2"></i>Búsqueda Avanzada en Historial</div>
+                
+                <div class="row g-2 mb-4 bg-light p-3 rounded">
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Desde (Atención)</label>
+                        <input type="date" id="filtroDesde" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label small text-muted">Hasta (Atención)</label>
+                        <input type="date" id="filtroHasta" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Mes Hierro</label>
+                        <select id="filtroMes" class="form-control form-control-sm">
+                            <option value="">Todos</option>
+                            <option value="1">Mes 1</option><option value="2">Mes 2</option>
+                            <option value="3">Mes 3</option><option value="4">Mes 4</option>
+                            <option value="5">Mes 5</option><option value="6">Mes 6</option>
+                            <option value="7">Mes 7</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label small text-muted">Palabra Clave</label>
+                        <input type="text" id="busquedaHistorial" class="form-control form-control-sm" placeholder="DNI o Nombre..." onkeyup="aplicarFiltros()">
+                    </div>
+                    <div class="col-md-2 d-flex align-items-end gap-1">
+                        <button class="btn btn-search btn-sm w-100" onclick="aplicarFiltros()"><i class="fas fa-filter"></i> Filtrar</button>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="cargarHistorial()"><i class="fas fa-sync-alt"></i></button>
                     </div>
                 </div>
+
                 <div class="table-container">
                     <table class="table table-hover table-striped">
                         <thead class="table-dark">
@@ -193,12 +247,12 @@
                                 <th>Fecha</th>
                                 <th>DNI</th>
                                 <th>Paciente</th>
-                                <th>Motivo Hierro</th>
+                                <th>Mes</th>
+                                <th>Motivo</th>
                                 <th>Acción</th>
                             </tr>
                         </thead>
-                        <tbody id="tablaCuerpo">
-                            </tbody>
+                        <tbody id="tablaCuerpo"></tbody>
                     </table>
                 </div>
             </div>
@@ -210,7 +264,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
-    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbxp4fAT0Bwjq6X9ksglyacvmuDBjQ6KGP-MpYOheNjZnQK2aT6f_PSlmkkYGskzRDSf/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbzO1LtUx-ePLhy-uAAUp9YUOH3bBZplHiHv4BeEDfnJYEkmE1OvpAhnP9yOA0gFc-iI/exec";
 
     let historialCompleto = [];
 
@@ -220,7 +274,46 @@
         actualizarFechas(); 
         cargarListasExcel();
         cargarHistorial(); 
+        cargarVistaHorizontal();
     };
+
+    // --- NUEVO: CARGAR KARDEX HORIZONTAL ---
+    function cargarVistaHorizontal() {
+        const tbody = document.getElementById('cuerpoHorizontal');
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center">Cargando Kardex...</td></tr>';
+        
+        fetch(`${URL_REGISTRO}?getVistaHorizontal=true`)
+            .then(res => res.json())
+            .then(data => {
+                tbody.innerHTML = "";
+                data.forEach(n => {
+                    let fila = `<tr>
+                        <td class="small"><b>${n.nombre}</b></td>
+                        <td>${n.dni}</td>`;
+                    for (let i = 0; i < 7; i++) {
+                        if (n.meses[i]) {
+                            fila += `<td class="text-center"><span class="fecha-click" onclick="editarDesdeRow(${n.rowIds[i]})">${n.meses[i]}</span></td>`;
+                        } else {
+                            fila += `<td class="mes-vacio">---</td>`;
+                        }
+                    }
+                    fila += `</tr>`;
+                    tbody.innerHTML += fila;
+                });
+            });
+    }
+
+    // --- NUEVO: EDITAR DESDE KARDEX ---
+    function editarDesdeRow(rowId) {
+        const reg = historialCompleto.find(r => r.rowId == rowId);
+        if (reg) {
+            const index = historialCompleto.indexOf(reg);
+            llenarParaEditar(index);
+        } else {
+            // Si no está en el buffer, forzamos recarga y buscamos (opcional)
+            Swal.fire("Nota", "Cargue el historial completo para editar este registro", "info");
+        }
+    }
 
     function calcularIMC() {
         const peso = parseFloat(document.getElementById('peso').value);
@@ -255,10 +348,9 @@
             .catch(err => console.error("Error cargando listas:", err));
     }
 
-    // --- CARGAR HISTORIAL ---
     function cargarHistorial() {
         const tbody = document.getElementById('tablaCuerpo');
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center">Cargando datos...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Cargando datos...</td></tr>';
         
         fetch(`${URL_REGISTRO}?getHistorial=true`)
             .then(res => res.json())
@@ -266,7 +358,7 @@
                 historialCompleto = data;
                 dibujarTabla(data);
             })
-            .catch(() => { tbody.innerHTML = '<tr><td colspan="5" class="text-center text-danger">Error al obtener historial</td></tr>'; });
+            .catch(() => { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error al obtener historial</td></tr>'; });
     }
 
     function dibujarTabla(datos) {
@@ -278,29 +370,46 @@
                     <td>${reg.fechaAtencion}</td>
                     <td>${reg.dni}</td>
                     <td>${reg.nombreCompleto}</td>
+                    <td class="text-center"><span class="badge bg-secondary">${reg.mesHierro || '-'}</span></td>
                     <td>${reg.motivoHierro}</td>
                     <td class="text-center">
-                        <i class="fas fa-edit btn-edit" title="Editar este registro" onclick="llenarParaEditar(${index})"></i>
+                        <i class="fas fa-edit btn-edit" title="Editar" onclick="llenarParaEditar(${index})"></i>
                     </td>
                 </tr>`;
         });
     }
 
-    function filtrarHistorial() {
+    // --- NUEVO: FILTROS AVANZADOS (FECHAS, DNI, MES) ---
+    function aplicarFiltros() {
+        const fDesde = document.getElementById('filtroDesde').value;
+        const fHasta = document.getElementById('filtroHasta').value;
+        const fMes = document.getElementById('filtroMes').value;
         const busqueda = document.getElementById('busquedaHistorial').value.toLowerCase();
-        const filtrados = historialCompleto.filter(reg => 
-            reg.dni.includes(busqueda) || 
-            reg.fechaAtencion.includes(busqueda) || 
-            reg.motivoHierro.toLowerCase().includes(busqueda)
-        );
+
+        const filtrados = historialCompleto.filter(reg => {
+            let cumpleFecha = true;
+            let cumpleMes = true;
+            let cumpleBusqueda = true;
+
+            if (fDesde && fHasta) {
+                cumpleFecha = (reg.fechaAtencion >= fDesde && reg.fechaAtencion <= fHasta);
+            }
+            if (fMes) {
+                cumpleMes = (reg.mesHierro == fMes);
+            }
+            if (busqueda) {
+                cumpleBusqueda = (reg.dni.includes(busqueda) || reg.nombreCompleto.toLowerCase().includes(busqueda));
+            }
+
+            return cumpleFecha && cumpleMes && cumpleBusqueda;
+        });
+
         dibujarTabla(filtrados);
     }
 
-    // --- MODO EDICIÓN: Llenar formulario con datos del historial ---
     function llenarParaEditar(index) {
         const reg = historialCompleto[index];
-        
-        document.getElementById('rowId').value = reg.rowId; // Crucial para la actualización
+        document.getElementById('rowId').value = reg.rowId;
         document.getElementById('fechaAtencion').value = reg.fechaAtencion;
         document.getElementById('dni').value = reg.dni;
         document.getElementById('nombreCompleto').value = reg.nombreCompleto;
@@ -329,13 +438,15 @@
         
         calcularEdad();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        Swal.fire("Modo Edición", "Puedes modificar los datos y guardar los cambios.", "info");
+        Swal.fire({ title: "Modo Edición", text: "Datos cargados correctamente.", icon: "info", timer: 1500, showConfirmButton: false });
     }
 
     function limpiarFormulario() {
         document.getElementById('registroForm').reset();
         document.getElementById('rowId').value = "";
-        window.onload();
+        const hoy = new Date().toISOString().split('T')[0];
+        document.getElementById('fechaAtencion').value = hoy;
+        actualizarFechas();
     }
 
     function buscarCenso() {
@@ -376,7 +487,7 @@
         e.preventDefault();
         const btn = document.getElementById('btnGuardar');
         btn.disabled = true;
-        btn.innerHTML = "Guardar Registro <i class='fas fa-spinner fa-spin ms-2'></i>";
+        btn.innerHTML = "Guardando... <i class='fas fa-spinner fa-spin ms-2'></i>";
 
         const datos = {
             rowId: document.getElementById('rowId').value,
@@ -411,11 +522,12 @@
         const params = new URLSearchParams(datos).toString();
         fetch(`${URL_REGISTRO}?${params}`, { method: 'GET', mode: 'no-cors' })
             .then(() => {
-                Swal.fire("Éxito", "Operación realizada correctamente", "success");
+                Swal.fire("¡Éxito!", "Registro procesado correctamente", "success");
                 limpiarFormulario();
                 cargarHistorial(); 
+                cargarVistaHorizontal();
             })
-            .catch(() => Swal.fire("Error", "No se pudo procesar el registro", "error"))
+            .catch(() => Swal.fire("Error", "No se pudo conectar con el servidor", "error"))
             .finally(() => {
                 btn.disabled = false;
                 btn.innerHTML = "Guardar Registro <i class='fas fa-save ms-2'></i>";
