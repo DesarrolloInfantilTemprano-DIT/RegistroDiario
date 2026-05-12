@@ -18,7 +18,7 @@
         .btn-edit { color: #3498db; cursor: pointer; font-size: 1.2rem; }
         .btn-edit:hover { color: #2980b9; }
         
-        /* Nuevos estilos para Kardex */
+        /* Estilos para Kardex */
         .table-kardex { font-size: 0.85rem; }
         .table-kardex th { background: #2c3e50 !important; color: white !important; text-align: center; vertical-align: middle; }
         .fecha-click { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
@@ -203,7 +203,9 @@
                                 <th>MES-7</th>
                             </tr>
                         </thead>
-                        <tbody id="cuerpoHorizontal"></tbody>
+                        <tbody id="cuerpoHorizontal">
+                            <tr><td colspan="9" class="text-center text-muted">Haga clic en "Actualizar Kardex" para ver los datos</td></tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -274,18 +276,22 @@
         actualizarFechas(); 
         cargarListasExcel();
         cargarHistorial(); 
-        cargarVistaHorizontal();
+        // No carga el Kardex automáticamente para evitar sobrecarga
     };
 
-    // --- NUEVO: CARGAR KARDEX HORIZONTAL ---
+    // --- CARGAR KARDEX HORIZONTAL (BAJO DEMANDA) ---
     function cargarVistaHorizontal() {
         const tbody = document.getElementById('cuerpoHorizontal');
-        tbody.innerHTML = '<tr><td colspan="9" class="text-center">Cargando Kardex...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="9" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Cargando Kardex...</td></tr>';
         
         fetch(`${URL_REGISTRO}?getVistaHorizontal=true`)
             .then(res => res.json())
             .then(data => {
                 tbody.innerHTML = "";
+                if(data.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No se encontraron registros</td></tr>';
+                    return;
+                }
                 data.forEach(n => {
                     let fila = `<tr>
                         <td class="small"><b>${n.nombre}</b></td>
@@ -300,18 +306,20 @@
                     fila += `</tr>`;
                     tbody.innerHTML += fila;
                 });
+                Swal.fire({ title: "Kardex Actualizado", icon: "success", timer: 1000, showConfirmButton: false });
+            })
+            .catch(() => {
+                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error al cargar datos del servidor</td></tr>';
             });
     }
 
-    // --- NUEVO: EDITAR DESDE KARDEX ---
     function editarDesdeRow(rowId) {
         const reg = historialCompleto.find(r => r.rowId == rowId);
         if (reg) {
             const index = historialCompleto.indexOf(reg);
             llenarParaEditar(index);
         } else {
-            // Si no está en el buffer, forzamos recarga y buscamos (opcional)
-            Swal.fire("Nota", "Cargue el historial completo para editar este registro", "info");
+            Swal.fire("Nota", "Por favor, recargue el historial antes de editar desde el Kardex.", "info");
         }
     }
 
@@ -350,7 +358,7 @@
 
     function cargarHistorial() {
         const tbody = document.getElementById('tablaCuerpo');
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Cargando datos...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Cargando historial...</td></tr>';
         
         fetch(`${URL_REGISTRO}?getHistorial=true`)
             .then(res => res.json())
@@ -379,7 +387,6 @@
         });
     }
 
-    // --- NUEVO: FILTROS AVANZADOS (FECHAS, DNI, MES) ---
     function aplicarFiltros() {
         const fDesde = document.getElementById('filtroDesde').value;
         const fHasta = document.getElementById('filtroHasta').value;
@@ -387,23 +394,12 @@
         const busqueda = document.getElementById('busquedaHistorial').value.toLowerCase();
 
         const filtrados = historialCompleto.filter(reg => {
-            let cumpleFecha = true;
-            let cumpleMes = true;
-            let cumpleBusqueda = true;
-
-            if (fDesde && fHasta) {
-                cumpleFecha = (reg.fechaAtencion >= fDesde && reg.fechaAtencion <= fHasta);
-            }
-            if (fMes) {
-                cumpleMes = (reg.mesHierro == fMes);
-            }
-            if (busqueda) {
-                cumpleBusqueda = (reg.dni.includes(busqueda) || reg.nombreCompleto.toLowerCase().includes(busqueda));
-            }
-
+            let cumpleFecha = true, cumpleMes = true, cumpleBusqueda = true;
+            if (fDesde && fHasta) cumpleFecha = (reg.fechaAtencion >= fDesde && reg.fechaAtencion <= fHasta);
+            if (fMes) cumpleMes = (reg.mesHierro == fMes);
+            if (busqueda) cumpleBusqueda = (reg.dni.includes(busqueda) || reg.nombreCompleto.toLowerCase().includes(busqueda));
             return cumpleFecha && cumpleMes && cumpleBusqueda;
         });
-
         dibujarTabla(filtrados);
     }
 
@@ -485,15 +481,28 @@
 
     document.getElementById('registroForm').onsubmit = function(e) {
         e.preventDefault();
+        
+        const dniActual = document.getElementById('dni').value;
+        const mesActual = document.getElementById('mesHierro').value;
+        const rowId = document.getElementById('rowId').value;
+
+        // VALIDACIÓN: Evitar duplicar el mismo mes para el mismo niño si es un registro nuevo
+        if (!rowId && mesActual) {
+            const yaRegistrado = historialCompleto.find(r => r.dni === dniActual && r.mesHierro == mesActual);
+            if (yaRegistrado) {
+                return Swal.fire("Duplicado", `El Mes ${mesActual} ya ha sido registrado previamente para este DNI.`, "warning");
+            }
+        }
+
         const btn = document.getElementById('btnGuardar');
         btn.disabled = true;
         btn.innerHTML = "Guardando... <i class='fas fa-spinner fa-spin ms-2'></i>";
 
         const datos = {
-            rowId: document.getElementById('rowId').value,
+            rowId: rowId,
             fechaAtencion: document.getElementById('fechaAtencion').value,
             nombreCompleto: document.getElementById('nombreCompleto').value,
-            dni: document.getElementById('dni').value,
+            dni: dniActual,
             fn: document.getElementById('fn').value,
             sexo: document.getElementById('sexo').value,
             edad: document.getElementById('edad').value,
@@ -509,7 +518,7 @@
             suplHierro: document.getElementById('suplHierro').value,
             unidadesHierro: document.getElementById('unidadesHierro').value,
             motivoHierro: document.getElementById('motivoHierro').value,
-            mesHierro: document.getElementById('mesHierro').value,
+            mesHierro: mesActual,
             antiparasitario: document.getElementById('antiparasitario').value,
             unidadesAntip: document.getElementById('unidadesAntip').value,
             vitaminaA: document.getElementById('vitaminaA').value,
@@ -525,7 +534,7 @@
                 Swal.fire("¡Éxito!", "Registro procesado correctamente", "success");
                 limpiarFormulario();
                 cargarHistorial(); 
-                cargarVistaHorizontal();
+                // No actualizamos Kardex automáticamente para mantener eficiencia
             })
             .catch(() => Swal.fire("Error", "No se pudo conectar con el servidor", "error"))
             .finally(() => {
