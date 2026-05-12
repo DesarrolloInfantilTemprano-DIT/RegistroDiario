@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Atención Infantil</title>
+    <title>Sistema de Registro DIT - Castillo Grande</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -12,103 +12,86 @@
         .section-title { background: #e9ecef; padding: 10px; border-radius: 5px; font-weight: bold; color: #2c3e50; margin-bottom: 20px; }
         .btn-search { background-color: #2c3e50; color: white; transition: 0.3s; }
         .btn-search:hover { background-color: #34495e; color: white; }
-        .form-label { font-weight: 500; font-size: 0.9rem; color: #555; }
+        .form-label { font-weight: 500; font-size: 0.85rem; color: #555; margin-bottom: 2px; }
         .req-color { color: #d9534f; font-weight: bold; }
-        /* Estilos para el historial */
-        .table-container { max-height: 400px; overflow-y: auto; }
-        .btn-edit { color: #3498db; cursor: pointer; font-size: 1.2rem; }
-        .btn-edit:hover { color: #2980b9; }
-        
-        /* Estilos para el Kardex */
-        .table-kardex { font-size: 0.85rem; }
+        .table-container { max-height: 450px; overflow-y: auto; }
+        .btn-edit { color: #3498db; cursor: pointer; font-size: 1.1rem; }
+        .table-kardex { font-size: 0.82rem; }
         .table-kardex th { background: #2c3e50 !important; color: white !important; text-align: center; vertical-align: middle; }
         .fecha-click { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
-        .mes-vacio { color: #ccc; font-style: italic; font-size: 0.75rem; text-align: center; }
     </style>
 </head>
 <body>
 
-<div class="container py-5">
+<div class="container-fluid py-4">
     <div class="row justify-content-center">
-        <div class="col-lg-11">
-            <div class="card p-4 mb-5">
-                <h3 class="text-center mb-4"><i class="fas fa-clipboard-list me-2"></i>Registro de Atención DIT </h3>
+        <div class="col-xl-11">
+            
+            <div class="card p-4 mb-4">
+                <h3 class="text-center mb-4"><i class="fas fa-notes-medical me-2"></i>Registro de Atención DIT</h3>
                 
                 <form id="registroForm">
                     <input type="hidden" id="rowId" value="">
 
-                    <div class="row mb-4">
-                        <div class="col-md-6">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
                             <label class="form-label">Consultar por DNI</label>
                             <div class="input-group">
-                                <input type="text" id="dni" class="form-control" placeholder="Ingrese DNI..." required>
+                                <input type="text" id="dni" class="form-control" placeholder="DNI..." required>
                                 <button type="button" class="btn btn-search" onclick="buscarCenso()"><i class="fas fa-search"></i></button>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label">Fecha de Atención</label>
                             <input type="date" id="fechaAtencion" class="form-control" onchange="actualizarFechas()" required>
                         </div>
                     </div>
 
-                    <div class="section-title">Datos Personales</div>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-8">
+                    <div class="section-title">1. Datos del Paciente</div>
+                    <div class="row g-2 mb-4">
+                        <div class="col-md-6">
                             <label class="form-label">Apellidos y Nombres</label>
                             <input type="text" id="nombreCompleto" class="form-control bg-light" readonly>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Fecha de Nacimiento</label>
+                        <div class="col-md-2">
+                            <label class="form-label">F. Nacimiento</label>
                             <input type="date" id="fn" class="form-control bg-light" readonly onchange="calcularEdad()">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-1">
                             <label class="form-label">Sexo</label>
                             <input type="text" id="sexo" class="form-control bg-light" readonly>
                         </div>
-                        <div class="col-md-5">
-                            <label class="form-label">Edad</label>
-                            <input type="text" id="edad" class="form-control bg-info-subtle" readonly placeholder="Cálculo automático">
-                        </div>
-                    </div>
-
-                    <div class="section-title">Datos Administrativos y Sectorización</div>
-                    <div class="row g-3 mb-4">
                         <div class="col-md-3">
-                            <label class="form-label">Historia Clínica</label>
+                            <label class="form-label">Edad Cronológica</label>
+                            <input type="text" id="edad" class="form-control bg-info-subtle" readonly>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">H. Clínica</label>
                             <input type="text" id="hc" class="form-control bg-light" readonly>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Ficha Familiar</label>
                             <input type="text" id="fichaFamiliar" class="form-control bg-light" readonly>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2">
                             <label class="form-label">Teléfono</label>
                             <input type="text" id="telefono" class="form-control bg-light" readonly>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Sector</label>
+                        <div class="col-md-6">
+                            <label class="form-label">Sector / Dirección</label>
                             <input type="text" id="sector" class="form-control bg-light" readonly>
                         </div>
                     </div>
 
-                    <div class="section-title">Evaluación Nutricional y Suplementación</div>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-2"><label class="form-label">N° CRED</label><input type="text" id="cred" class="form-control"></div>
-                        <div class="col-md-2">
-                            <label class="form-label">Peso (kg)</label>
-                            <input type="number" step="0.001" id="peso" class="form-control" placeholder="0.000" oninput="calcularIMC()">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Talla (m)</label>
-                            <input type="number" step="0.01" id="talla" class="form-control" placeholder="0.00" oninput="calcularIMC()">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">IMC</label>
-                            <input type="text" id="imc" class="form-control bg-info-subtle" readonly placeholder="Auto">
-                        </div>
-                        <div class="col-md-2"><label class="form-label">Resultado HemoHb</label><input type="text" id="hb" class="form-control"></div>
-                        <div class="col-md-2">
-                            <label class="form-label">Supl. Hierro</label>
+                    <div class="section-title">2. Evaluación y Suplementación</div>
+                    <div class="row g-2 mb-4">
+                        <div class="col-md-1"><label class="form-label">N° CRED</label><input type="text" id="cred" class="form-control"></div>
+                        <div class="col-md-1"><label class="form-label">Peso(kg)</label><input type="number" step="0.001" id="peso" class="form-control" oninput="calcularIMC()"></div>
+                        <div class="col-md-1"><label class="form-label">Talla(m)</label><input type="number" step="0.01" id="talla" class="form-control" oninput="calcularIMC()"></div>
+                        <div class="col-md-1"><label class="form-label">IMC</label><input type="text" id="imc" class="form-control bg-light" readonly></div>
+                        <div class="col-md-2"><label class="form-label">Hemoglobina</label><input type="text" id="hb" class="form-control"></div>
+                        <div class="col-md-3">
+                            <label class="form-label">Suplemento Hierro</label>
                             <select id="suplHierro" class="form-select">
                                 <option value="">Seleccione...</option>
                                 <option>Sulfato Ferroso en gotas</option>
@@ -118,11 +101,7 @@
                                 <option>Mutimicronutrientes 1 g (sobres)</option>
                             </select>
                         </div>
-                    </div>
-
-                    <div class="section-title">Tratamiento, Vacunas y Citas</div>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-2"><label class="form-label">N° Unid. Hierro</label><input type="number" id="unidadesHierro" class="form-control"></div>
+                        <div class="col-md-1"><label class="form-label">Unid. Hierro</label><input type="number" id="unidadesHierro" class="form-control"></div>
                         <div class="col-md-2">
                             <label class="form-label">Motivo Hierro</label>
                             <select id="motivoHierro" class="form-select">
@@ -130,290 +109,101 @@
                                 <option>Tratamiento</option>
                             </select>
                         </div>
-                        <div class="col-md-2"><label class="form-label">N° Mes Hierro</label><input type="number" id="mesHierro" class="form-control" min="1" max="7"></div>
-                        <div class="col-md-4">
+                    </div>
+
+                    <div class="section-title">3. Tratamiento Adicional y Citas</div>
+                    <div class="row g-2 mb-4">
+                        <div class="col-md-1"><label class="form-label">Mes Hierro</label><input type="number" id="mesHierro" class="form-control" min="1" max="7"></div>
+                        <div class="col-md-3">
                             <label class="form-label">Antiparasitario</label>
                             <select id="antiparasitario" class="form-select">
                                 <option value="">Ninguno</option>
-                                <option>Albendazol en Jarabe</option>
-                                <option>Mebendazol en Jarabe</option>
-                                <option>Albendazol en Tableta</option>
-                                <option>Mebendazol en Tableta</option>
+                                <option>Albendazol Jarabe</option>
+                                <option>Mebendazol Jarabe</option>
+                                <option>Albendazol Tableta</option>
+                                <option>Mebendazol Tableta</option>
                             </select>
                         </div>
-                        <div class="col-md-2"><label class="form-label">Unid. Antip.</label><input type="number" id="unidadesAntip" class="form-control"></div>
-                        <div class="col-md-3">
-                            <label class="form-label">N° Vitamina A</label>
-                            <select id="vitaminaA" class="form-select">
-                                <option value="">Seleccione...</option>
-                                <option>100000 UI</option>
-                                <option>200000 UI</option>
-                            </select>
-                        </div>
+                        <div class="col-md-1"><label class="form-label">Unid. Anti.</label><input type="number" id="unidadesAntip" class="form-control"></div>
                         <div class="col-md-2">
-                            <label class="form-label">Vacunado</label>http://googleusercontent.com/image_generation_content/0
-
-He actualizado tu código HTML de forma integral para incorporar la **Vista de Seguimiento Horizontal** (tipo Kardex), optimizar el motor de búsqueda avanzada y mejorar la usabilidad del sistema, todo esto respetando estrictamente tu solicitud de no eliminar nada de la estructura que ya tenías funcionando excelente.
-
-Los cambios principales son:
-1.  **Vista de Seguimiento Horizontal (Kardex):** Se añadió un nuevo módulo debajo del formulario para visualizar a los niños que reciben hierro por tratamiento en un formato horizontal. Esto agrupa los registros por niño, mostrando las fechas de atención en columnas consecutivas (Mes 1 al 7), facilitando la lectura de la continuidad del tratamiento.
-2.  **Búsqueda Avanzada Mejorada (Lazy Loading):** Se optimizó la sección de búsqueda en el historial. Ahora, el sistema no se recarga automáticamente al escribir en el campo de "Palabra Clave". Para evitar recargar el sistema innecesariamente, los datos del historial solo se obtienen del servidor de Google y se muestran en la tabla cuando el usuario hace clic en el botón **"Filtrar"**.
-3.  **Filtrado por Rango de Fechas:** Se han añadido campos específicos para buscar atenciones por rango de fechas (Desde y Hasta), además de por DNI o nombres, simplificando la búsqueda.
-4.  **Edición Integrada:** Se conservó toda la funcionalidad de edición y limpieza del formulario original, asegurando que no se elimine nada de lo que ya funcionaba bien.
-
-Aquí tienes el código completo y optimizado para reemplazar en tu archivo HTML:
-
-```html
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Atención Infantil</title>
-    <link href="[https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css](https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css)" rel="stylesheet">
-    <link rel="stylesheet" href="[https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css](https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css)">
-    <style>
-        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .card { border: none; border-top: 5px solid #2c3e50; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .section-title { background: #e9ecef; padding: 10px; border-radius: 5px; font-weight: bold; color: #2c3e50; margin-bottom: 20px; }
-        .btn-search { background-color: #2c3e50; color: white; transition: 0.3s; }
-        .btn-search:hover { background-color: #34495e; color: white; }
-        .form-label { font-weight: 500; font-size: 0.9rem; color: #555; }
-        .req-color { color: #d9534f; font-weight: bold; }
-        .table-container { max-height: 400px; overflow-y: auto; }
-        .btn-edit { color: #3498db; cursor: pointer; font-size: 1.2rem; }
-        .btn-edit:hover { color: #2980b9; }
-        
-        /* Nuevos estilos para el Kardex y Búsqueda Avanzada */
-        .table-kardex { font-size: 0.85rem; }
-        .table-kardex th { background: #2c3e50 !important; color: white !important; text-align: center; vertical-align: middle; white-space: nowrap; }
-        .table-kardex td { white-space: nowrap; }
-        .fecha-click { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
-        .mes-vacio { color: #ccc; font-style: italic; font-size: 0.75rem; text-align: center; }
-        .small-header { font-size: 0.8rem; text-muted; }
-    </style>
-</head>
-<body>
-
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-11">
-            <div class="card p-4 mb-5">
-                <h3 class="text-center mb-4"><i class="fas fa-clipboard-list me-2"></i>Registro de Atención DIT </h3>
-                
-                <form id="registroForm">
-                    <input type="hidden" id="rowId" value="">
-
-                    <div class="row mb-4">
-                        <div class="col-md-6">
-                            <label class="form-label">Consultar por DNI</label>
-                            <div class="input-group">
-                                <input type="text" id="dni" class="form-control" placeholder="Ingrese DNI..." required>
-                                <button type="button" class="btn btn-search" onclick="buscarCenso()"><i class="fas fa-search"></i></button>
-                            </div>
+                            <label class="form-label">Vitamina A</label>
+                            <select id="vitaminaA" class="form-select"><option value="">Ninguna</option><option>100000 UI</option><option>200000 UI</option></select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Fecha de Atención</label>
-                            <input type="date" id="fechaAtencion" class="form-control" onchange="actualizarFechas()" required>
-                        </div>
-                    </div>
-
-                    <div class="section-title">Datos Personales</div>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-8">
-                            <label class="form-label">Apellidos y Nombres</label>
-                            <input type="text" id="nombreCompleto" class="form-control bg-light" readonly>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Fecha de Nacimiento</label>
-                            <input type="date" id="fn" class="form-control bg-light" readonly onchange="calcularEdad()">
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Sexo</label>
-                            <input type="text" id="sexo" class="form-control bg-light" readonly>
-                        </div>
-                        <div class="col-md-5">
-                            <label class="form-label">Edad</label>
-                            <input type="text" id="edad" class="form-control bg-info-subtle" readonly placeholder="Cálculo automático">
-                        </div>
-                    </div>
-
-                    <div class="section-title">Datos Administrativos y Sectorización</div>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-3">
-                            <label class="form-label">Historia Clínica</label>
-                            <input type="text" id="hc" class="form-control bg-light" readonly>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Ficha Familiar</label>
-                            <input type="text" id="fichaFamiliar" class="form-control bg-light" readonly>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Teléfono</label>
-                            <input type="text" id="telefono" class="form-control bg-light" readonly>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Sector</label>
-                            <input type="text" id="sector" class="form-control bg-light" readonly>
-                        </div>
-                    </div>
-
-                    <div class="section-title">Evaluación Nutricional y Suplementación</div>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-2"><label class="form-label">N° CRED</label><input type="text" id="cred" class="form-control"></div>
-                        <div class="col-md-2">
-                            <label class="form-label">Peso (kg)</label>
-                            <input type="number" step="0.001" id="peso" class="form-control" placeholder="0.000" oninput="calcularIMC()">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">Talla (m)</label>
-                            <input type="number" step="0.01" id="talla" class="form-control" placeholder="0.00" oninput="calcularIMC()">
-                        </div>
-                        <div class="col-md-2">
-                            <label class="form-label">IMC</label>
-                            <input type="text" id="imc" class="form-control bg-info-subtle" readonly placeholder="Auto">
-                        </div>
-                        <div class="col-md-2"><label class="form-label">Resultado HemoHb</label><input type="text" id="hb" class="form-control"></div>
-                        <div class="col-md-2">
-                            <label class="form-label">Supl. Hierro</label>
-                            <select id="suplHierro" class="form-select">
-                                <option value="">Seleccione...</option>
-                                <option>Sulfato Ferroso en gotas</option>
-                                <option>Hierro Polimaltosado en gotas</option>
-                                <option>Sulfato Ferroso en jarabe</option>
-                                <option>Hierro Polimaltosado en jarabe</option>
-                                <option>Mutimicronutrientes 1 g (sobres)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="section-title">Tratamiento, Vacunas y Citas</div>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-2"><label class="form-label">N° Unid. Hierro</label><input type="number" id="unidadesHierro" class="form-control"></div>
-                        <div class="col-md-2">
-                            <label class="form-label">Motivo Hierro</label>
-                            <select id="motivoHierro" class="form-select">
-                                <option>Preventivo</option>
-                                <option>Tratamiento</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2"><label class="form-label">N° Mes Hierro</label><input type="number" id="mesHierro" class="form-control" min="1" max="7"></div>
-                        <div class="col-md-4">
-                            <label class="form-label">Antiparasitario</label>
-                            <select id="antiparasitario" class="form-select">
-                                <option value="">Ninguno</option>
-                                <option>Albendazol en Jarabe</option>
-                                <option>Mebendazol en Jarabe</option>
-                                <option>Albendazol en Tableta</option>
-                                <option>Mebendazol en Tableta</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2"><label class="form-label">Unid. Antip.</label><input type="number" id="unidadesAntip" class="form-control"></div>
-                        <div class="col-md-3">
-                            <label class="form-label">N° Vitamina A</label>
-                            <select id="vitaminaA" class="form-select">
-                                <option value="">Seleccione...</option>
-                                <option>100000 UI</option>
-                                <option>200000 UI</option>
-                            </select>
-                        </div>
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <label class="form-label">Vacunado</label>
-                            <select id="vacunado" class="form-select">
-                                <option value="No">No</option>
-                                <option value="Si">Si</option>
-                            </select>
+                            <select id="vacunado" class="form-select"><option>No</option><option>Si</option></select>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Fecha Cita</label>
-                            <input type="date" id="fechaCita" class="form-control">
-                        </div>
+                        <div class="col-md-2"><label class="form-label">Próxima Cita</label><input type="date" id="fechaCita" class="form-control"></div>
                     </div>
 
-                    <div class="section-title">Responsables de Atención</div>
-                    <div class="row g-3 mb-4">
+                    <div class="section-title">4. Responsables de Atención</div>
+                    <div class="row g-2 mb-4">
                         <div class="col-md-6">
                             <label class="form-label">Esp. Infantil <span class="req-color">*</span></label>
-                            <input type="text" id="espInfantil" class="form-control" list="listEsp" placeholder="Escriba para buscar..." required>
+                            <input type="text" id="espInfantil" class="form-control" list="listEsp" required>
                             <datalist id="listEsp"></datalist>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Asist. Especialidad <span class="req-color">*</span></label>
-                            <input type="text" id="asistEspecialidad" class="form-control" list="listAsist" placeholder="Escriba para buscar..." required>
+                            <input type="text" id="asistEspecialidad" class="form-control" list="listAsist" required>
                             <datalist id="listAsist"></datalist>
                         </div>
                     </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                        <button type="button" class="btn btn-secondary btn-lg px-4" onclick="limpiarFormulario()">Limpiar / Nuevo</button>
-                        <button type="submit" id="btnGuardar" class="btn btn-primary btn-lg px-5">Guardar Registro <i class="fas fa-save ms-2"></i></button>
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="button" class="btn btn-secondary px-4" onclick="limpiarFormulario()">Nuevo / Limpiar</button>
+                        <button type="submit" id="btnGuardar" class="btn btn-primary px-5">Guardar Registro <i class="fas fa-save ms-1"></i></button>
                     </div>
                 </form>
             </div>
 
-            <div class="card p-4 mb-5 shadow">
-                <div class="section-title d-flex justify-content-between align-items-center">
-                    <span><i class="fas fa-arrows-alt-h me-2"></i>Seguimiento Horizontal (Kardex): Niños en Tratamiento</span>
-                    <button class="btn btn-sm btn-outline-primary" onclick="cargarVistaHorizontal()"><i class="fas fa-sync-alt"></i> Actualizar Kardex</button>
+            <div class="d-grid mb-4">
+                <button class="btn btn-outline-primary btn-lg" onclick="toggleKardex(true)">
+                    <i class="fas fa-calendar-alt me-2"></i> Consultar Seguimiento Horizontal (Kardex Tratamiento)
+                </button>
+            </div>
+
+            <div id="seccionKardex" class="card p-4 mb-5 shadow-sm" style="display: none; border-top: 5px solid #3498db;">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="m-0 text-primary"><i class="fas fa-table me-2"></i>Kardex: Seguimiento de Hierro</h5>
+                    <button class="btn btn-sm btn-outline-secondary" onclick="toggleKardex(false)">Ocultar</button>
                 </div>
+                
+                <div class="row g-2 mb-3 bg-light p-3 rounded">
+                    <div class="col-md-3"><label class="form-label small">Desde (Mes 1)</label><input type="date" id="kDesde" class="form-control form-control-sm"></div>
+                    <div class="col-md-3"><label class="form-label small">Hasta (Mes 1)</label><input type="date" id="kHasta" class="form-control form-control-sm"></div>
+                    <div class="col-md-4"><label class="form-label small">DNI / Nombre</label><input type="text" id="kBusq" class="form-control form-control-sm" placeholder="Buscar..."></div>
+                    <div class="col-md-2 d-flex align-items-end"><button class="btn btn-primary btn-sm w-100" onclick="cargarKardex()"><i class="fas fa-search"></i> Filtrar</button></div>
+                </div>
+
                 <div class="table-responsive">
-                    <table class="table table-bordered table-sm table-kardex table-hover">
+                    <table class="table table-bordered table-sm table-kardex">
                         <thead>
                             <tr>
-                                <th>Fecha Atención</th>
-                                <th>Nombres y Apellidos</th>
+                                <th>Paciente</th>
                                 <th>DNI</th>
-                                <th>HC</th>
-                                <th>MES-1</th>
-                                <th>MES-2</th>
-                                <th>MES-3</th>
-                                <th>MES-4</th>
-                                <th>MES-5</th>
-                                <th>MES-6</th>
-                                <th>MES-7</th>
+                                <th>MES-1</th><th>MES-2</th><th>MES-3</th><th>MES-4</th><th>MES-5</th><th>MES-6</th><th>MES-7</th>
                             </tr>
                         </thead>
-                        <tbody id="cuerpoHorizontal">
-                            <tr><td colspan="11" class="text-center text-muted">Use los filtros de abajo para buscar...</td></tr>
-                        </tbody>
+                        <tbody id="cuerpoKardex"></tbody>
                     </table>
                 </div>
             </div>
 
-            <div class="card p-4 shadow">
-                <div class="section-title"><i class="fas fa-search-plus me-2"></i>Búsqueda Avanzada en Historial</div>
-                
-                <div class="row g-2 mb-4 bg-light p-3 rounded">
-                    <div class="col-md-3">
-                        <label class="form-label small-header">Desde (Atención)</label>
-                        <input type="date" id="filtroDesde" class="form-control form-control-sm">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label small-header">Hasta (Atención)</label>
-                        <input type="date" id="filtroHasta" class="form-control form-control-sm">
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label small-header">Buscar DNI / Nombres</label>
-                        <input type="text" id="filtroBusqueda" class="form-control form-control-sm" placeholder="Ingrese DNI o nombre...">
-                    </div>
-                    <div class="col-md-2 d-flex align-items-end gap-1">
-                        <button class="btn btn-search btn-sm w-100" onclick="aplicarFiltrosYVista()"><i class="fas fa-filter"></i> Filtrar</button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="cargarHistorial()"><i class="fas fa-sync-alt"></i></button>
-                    </div>
+            <div class="card p-4 shadow-sm">
+                <h5 class="mb-3 text-secondary"><i class="fas fa-search me-2"></i>Búsqueda Avanzada en Historial</h5>
+                <div class="row g-2 mb-3">
+                    <div class="col-md-3"><input type="date" id="fDesde" class="form-control form-control-sm"></div>
+                    <div class="col-md-3"><input type="date" id="fHasta" class="form-control form-control-sm"></div>
+                    <div class="col-md-4"><input type="text" id="fBusq" class="form-control form-control-sm" placeholder="DNI o Nombre..."></div>
+                    <div class="col-md-2"><button class="btn btn-dark btn-sm w-100" onclick="filtrarHistorial()"><i class="fas fa-filter"></i> Buscar</button></div>
                 </div>
-
                 <div class="table-container">
-                    <table class="table table-hover table-striped">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Fecha</th>
-                                <th>DNI</th>
-                                <th>Paciente</th>
-                                <th>Motivo Hierro</th>
-                                <th>Acción</th>
-                            </tr>
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr><th>Fecha</th><th>DNI</th><th>Paciente</th><th>Motivo</th><th>Acción</th></tr>
                         </thead>
-                        <tbody id="tablaCuerpo"></tbody>
+                        <tbody id="cuerpoHistorial"></tbody>
                     </table>
                 </div>
             </div>
@@ -422,267 +212,169 @@ Aquí tienes el código completo y optimizado para reemplazar en tu archivo HTML
     </div>
 </div>
 
-<script src="[https://cdn.jsdelivr.net/npm/sweetalert2@11](https://cdn.jsdelivr.net/npm/sweetalert2@11)"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-    const URL_CENSO = "[https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec](https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec)";
-    const URL_REGISTRO = "[https://script.google.com/macros/s/AKfycbxp4fAT0Bwjq6X9ksglyacvmuDBjQ6KGP-MpYOheNjZnQK2aT6f_PSlmkkYGskzRDSf/exec](https://script.google.com/macros/s/AKfycbxp4fAT0Bwjq6X9ksglyacvmuDBjQ6KGP-MpYOheNjZnQK2aT6f_PSlmkkYGskzRDSf/exec)";
+    const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbxp4fAT0Bwjq6X9ksglyacvmuDBjQ6KGP-MpYOheNjZnQK2aT6f_PSlmkkYGskzRDSf/exec";
 
-    let historialCompleto = [];
+    let historialGlobal = [];
 
-    window.onload = function() {
-        const hoy = new Date().toISOString().split('T')[0];
-        document.getElementById('fechaAtencion').value = hoy;
-        actualizarFechas(); 
-        cargarListasExcel();
-        // cargarHistorial(); // Ya no recarga al inicio para no saturar
-        // cargarVistaHorizontal(); // Ya no recarga al inicio
+    window.onload = () => {
+        document.getElementById('fechaAtencion').value = new Date().toISOString().split('T')[0];
+        actualizarFechas();
+        cargarListas();
     };
 
-    // --- NUEVO: FILTRADO Y CARGA BAJO DEMANDA ---
-    function aplicarFiltrosYVista() {
-        Swal.fire({
-            title: 'Filtrando datos...',
-            text: 'Esto puede tardar un momento si hay muchos registros.',
-            allowOutsideClick: false,
-            didOpen: () => { Swal.showLoading(); }
-        });
+    function toggleKardex(v) { 
+        document.getElementById('seccionKardex').style.display = v ? 'block' : 'none';
+        if(v) document.getElementById('seccionKardex').scrollIntoView({behavior:'smooth'});
+    }
 
-        const fDesde = document.getElementById('filtroDesde').value;
-        const fHasta = document.getElementById('filtroHasta').value;
-        const fBusqueda = document.getElementById('filtroBusqueda').value.toLowerCase();
-
-        const params = new URLSearchParams({
-            getHistorial: true,
-            fDesde: fDesde,
-            fHasta: fHasta,
-            fBusqueda: fBusqueda
-        }).toString();
-
-        fetch(`${URL_REGISTRO}?${params}`)
-            .then(res => res.json())
-            .then(data => {
-                Swal.close();
-                historialCompleto = data;
-                dibujarTabla(data);
-                cargarVistaHorizontal(); // Recarga Kardex con los mismos filtros
-            })
-            .catch(() => {
-                Swal.close();
-                Swal.fire("Error", "No se pudo obtener el historial", "error");
+    function cargarListas() {
+        fetch(`${URL_REGISTRO}?getLists=true`)
+            .then(r => r.json())
+            .then(d => {
+                const lE = document.getElementById('listEsp');
+                const lA = document.getElementById('listAsist');
+                d.especialistas.forEach(e => lE.innerHTML += `<option value="${e}">`);
+                d.asistentes.forEach(a => lA.innerHTML += `<option value="${a}">`);
             });
     }
 
-    // --- NUEVO: CARGAR KARDEX HORIZONTAL ---
-    function cargarVistaHorizontal() {
-        const tbody = document.getElementById('cuerpoHorizontal');
-        tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">Use los filtros de arriba y pulse Filtrar...</td></tr>';
-        
-        const params = new URLSearchParams({
-            getVistaHorizontal: true,
-            fDesde: document.getElementById('filtroDesde').value,
-            fHasta: document.getElementById('filtroHasta').value,
-            fBusqueda: document.getElementById('filtroBusqueda').value.toLowerCase()
-        }).toString();
-
-        fetch(`${URL_REGISTRO}?${params}`)
-            .then(res => res.json())
-            .then(data => {
-                tbody.innerHTML = "";
-                if(data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">No se encontraron niños en tratamiento con estos filtros</td></tr>';
-                    return;
-                }
-                data.forEach(n => {
-                    let fila = `<tr>
-                        <td class="small"><b>${n.nombre}</b></td>
-                        <td>${n.dni}</td>
-                        <td>${n.hc}</td>`;
-                    for (let i = 0; i < 7; i++) {
-                        if (n.meses[i]) {
-                            // Clic en la fecha para editar
-                            fila += `<td class="text-center"><span class="fecha-click" onclick="editarDesdeKardex(${n.rowIds[i]})">${n.meses[i]}</span></td>`;
-                        } else {
-                            fila += `<td class="mes-vacio">Pendiente</td>`;
-                        }
-                    }
-                    fila += `</tr>`;
-                    tbody.innerHTML += fila;
-                });
-            })
-            .catch(() => { tbody.innerHTML = '<tr><td colspan="11" class="text-center text-danger">Error al cargar Kardex</td></tr>'; });
+    function buscarCenso() {
+        let dni = document.getElementById('dni').value;
+        if(!dni) return;
+        fetch(`${URL_CENSO}?dni=${dni}`).then(r => r.json()).then(d => {
+            if(d.nombreB) {
+                document.getElementById('nombreCompleto').value = d.nombreB;
+                document.getElementById('sexo').value = d.sexo;
+                document.getElementById('hc').value = d.hclinica;
+                document.getElementById('fichaFamiliar').value = d.ffamiliar;
+                document.getElementById('telefono').value = d.telefono;
+                document.getElementById('sector').value = d.sector;
+                if(d.fn && d.fn.includes('/')) {
+                    let p = d.fn.split('/'); document.getElementById('fn').value = `${p[2]}-${p[1]}-${p[0]}`;
+                } else { document.getElementById('fn').value = d.fn; }
+                calcularEdad();
+            }
+        });
     }
 
-    // --- NUEVO: EDITAR ATENCIÓN ESPECÍFICA DESDE KARDEX ---
-    function editarDesdeKardex(rowId) {
-        Swal.fire({
-            title: 'Cargando Atención',
-            text: 'Obteniendo datos de la fila ' + rowId,
-            allowOutsideClick: false,
-            didOpen: () => { Swal.showLoading(); }
-        });
-
-        fetch(`${URL_REGISTRO}?getRowData=true&rowId=${rowId}`)
-            .then(res => res.json())
-            .then(reg => {
-                Swal.close();
-                llenarParaEditar(reg);
-            })
-            .catch(() => {
-                Swal.close();
-                Swal.fire("Error", "No se pudo recuperar la atención específica", "error");
-            });
+    function calcularEdad() {
+        let vA = document.getElementById('fechaAtencion').value;
+        let vN = document.getElementById('fn').value;
+        if(!vA || !vN) return;
+        let fA = new Date(vA + "T00:00:00"), fN = new Date(vN + "T00:00:00");
+        let a = fA.getFullYear() - fN.getFullYear(), m = fA.getMonth() - fN.getMonth(), d = fA.getDate() - fN.getDate();
+        if(d < 0) { m--; d += new Date(fA.getFullYear(), fA.getMonth(), 0).getDate(); }
+        if(m < 0) { a--; m += 12; }
+        document.getElementById('edad').value = `${a}a ${m}m ${d}d`;
     }
 
     function calcularIMC() {
-        const peso = parseFloat(document.getElementById('peso').value);
-        const talla = parseFloat(document.getElementById('talla').value);
-        const imcField = document.getElementById('imc');
-        if (peso > 0 && talla > 0) {
-            const imc = peso / (talla * talla);
-            imcField.value = imc.toFixed(2);
-        } else { imcField.value = ""; }
+        let p = parseFloat(document.getElementById('peso').value);
+        let t = parseFloat(document.getElementById('talla').value);
+        if(p>0 && t>0) document.getElementById('imc').value = (p/(t*t)).toFixed(2);
     }
 
     function actualizarFechas() {
-        const fAtencion = document.getElementById('fechaAtencion').value;
-        if (fAtencion) {
-            let fecha = new Date(fAtencion + "T00:00:00");
-            fecha.setDate(fecha.getDate() + 30);
-            document.getElementById('fechaCita').value = fecha.toISOString().split('T')[0];
+        let f = document.getElementById('fechaAtencion').value;
+        if(f) {
+            let d = new Date(f + "T00:00:00");
+            d.setDate(d.getDate() + 30);
+            document.getElementById('fechaCita').value = d.toISOString().split('T')[0];
             calcularEdad();
         }
     }
 
-    function cargarListasExcel() {
-        fetch(`${URL_REGISTRO}?getLists=true`)
-            .then(res => res.json())
-            .then(data => {
-                const dlEsp = document.getElementById('listEsp');
-                const dlAsist = document.getElementById('listAsist');
-                dlEsp.innerHTML = ""; dlAsist.innerHTML = "";
-                data.especialistas.forEach(item => { if(item) dlEsp.innerHTML += `<option value="${item}">`; });
-                data.asistentes.forEach(item => { if(item) dlAsist.innerHTML += `<option value="${item}">`; });
-            })
-            .catch(err => console.error("Error cargando listas:", err));
-    }
-
-    // Mantenemos cargarHistorial pero ahora se llama al pulsar Filtrar
-    function cargarHistorial() {
-        aplicarFiltrosYVista(); // Todo se maneja centralizado aquí
-    }
-
-    function dibujarTabla(datos) {
-        const tbody = document.getElementById('tablaCuerpo');
-        tbody.innerHTML = "";
-        datos.forEach((reg, index) => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${reg.fechaAtencion}</td>
-                    <td>${reg.dni}</td>
-                    <td>${reg.nombreCompleto}</td>
-                    <td>${reg.motivoHierro}</td>
-                    <td class="text-center">
-                        <i class="fas fa-edit btn-edit" title="Editar" onclick="llenarParaEditar(${index})"></i>
-                    </td>
-                </tr>`;
+    function filtrarHistorial() {
+        const params = new URLSearchParams({
+            getHistorial: true,
+            fDesde: document.getElementById('fDesde').value,
+            fHasta: document.getElementById('fHasta').value,
+            fBusqueda: document.getElementById('fBusq').value.toLowerCase()
+        });
+        fetch(`${URL_REGISTRO}?${params}`).then(r => r.json()).then(d => {
+            historialGlobal = d;
+            const b = document.getElementById('cuerpoHistorial');
+            b.innerHTML = d.length ? "" : "<tr><td colspan='5'>Sin resultados</td></tr>";
+            d.forEach((r, i) => {
+                b.innerHTML += `<tr><td>${r.fechaAtencion}</td><td>${r.dni}</td><td>${r.nombreCompleto}</td><td>${r.motivoHierro}</td><td><i class='fas fa-edit btn-edit' onclick='cargarEdit(${i})'></i></td></tr>`;
+            });
         });
     }
 
-    // Ya no se usa filtrarHistorial localmente
-    // function filtrarHistorial() { ... }
+    function cargarKardex() {
+        const params = new URLSearchParams({
+            getVistaHorizontal: true,
+            fDesde: document.getElementById('kDesde').value,
+            fHasta: document.getElementById('kHasta').value,
+            fBusqueda: document.getElementById('kBusq').value.toLowerCase()
+        });
+        fetch(`${URL_REGISTRO}?${params}`).then(r => r.json()).then(d => {
+            const b = document.getElementById('cuerpoKardex');
+            b.innerHTML = "";
+            d.forEach(n => {
+                let f = `<tr><td class='small'><b>${n.nombre}</b></td><td>${n.dni}</td>`;
+                for(let i=0; i<7; i++) {
+                    f += n.meses[i] ? `<td class='text-center'><span class='fecha-click' onclick='editarDesdeKardex(${n.rowIds[i]})'>${n.meses[i]}</span></td>` : "<td class='text-center text-muted'>-</td>";
+                }
+                b.innerHTML += f + "</tr>";
+            });
+        });
+    }
 
-    // --- MODIFICADO: Llenar formulario (acepta objeto registro directo o índice) ---
-    function llenarParaEditar(registroOrIndex) {
-        let reg;
-        if (typeof registroOrIndex === 'number') {
-            reg = historialCompleto[registroOrIndex];
-        } else {
-            reg = registroOrIndex;
-        }
+    function cargarEdit(idx) {
+        const r = historialGlobal[idx];
+        if(!r) return;
+        document.getElementById('rowId').value = r.rowId;
+        document.getElementById('dni').value = r.dni;
+        document.getElementById('fechaAtencion').value = r.fechaAtencion;
+        document.getElementById('nombreCompleto').value = r.nombreCompleto;
+        document.getElementById('fn').value = r.fn;
+        document.getElementById('sexo').value = r.sexo;
+        document.getElementById('hc').value = r.hc;
+        document.getElementById('fichaFamiliar').value = r.ficha;
+        document.getElementById('telefono').value = r.telefono;
+        document.getElementById('sector').value = r.sector;
+        document.getElementById('cred').value = r.cred;
+        document.getElementById('peso').value = r.peso;
+        document.getElementById('talla').value = r.talla;
+        document.getElementById('imc').value = r.imc;
+        document.getElementById('hb').value = r.hb;
+        document.getElementById('suplHierro').value = r.suplHierro;
+        document.getElementById('unidadesHierro').value = r.unidadesHierro;
+        document.getElementById('motivoHierro').value = r.motivoHierro;
+        document.getElementById('mesHierro').value = r.mesHierro;
+        document.getElementById('antiparasitario').value = r.antiparasitario;
+        document.getElementById('unidadesAntip').value = r.unidadesAntip;
+        document.getElementById('vitaminaA').value = r.vitaminaA;
+        document.getElementById('vacunado').value = r.vacunado;
+        document.getElementById('fechaCita').value = r.fechaCita;
+        document.getElementById('espInfantil').value = r.espInfantil;
+        document.getElementById('asistEspecialidad').value = r.asistEspecialidad;
+        calcularEdad(); window.scrollTo({top:0, behavior:'smooth'});
+    }
 
-        if(!reg) return;
-        
-        document.getElementById('rowId').value = reg.rowId; // Crucial para la actualización
-        document.getElementById('fechaAtencion').value = reg.fechaAtencion;
-        document.getElementById('dni').value = reg.dni;
-        document.getElementById('nombreCompleto').value = reg.nombreCompleto;
-        document.getElementById('fn').value = reg.fn;
-        document.getElementById('sexo').value = reg.sexo;
-        document.getElementById('hc').value = reg.hc;
-        document.getElementById('fichaFamiliar').value = reg.ficha;
-        document.getElementById('telefono').value = reg.telefono;
-        document.getElementById('sector').value = reg.sector;
-        document.getElementById('cred').value = reg.cred;
-        document.getElementById('peso').value = reg.peso;
-        document.getElementById('talla').value = reg.talla;
-        document.getElementById('imc').value = reg.imc;
-        document.getElementById('hb').value = reg.hb;
-        document.getElementById('suplHierro').value = reg.suplHierro;
-        document.getElementById('unidadesHierro').value = reg.unidadesHierro;
-        document.getElementById('motivoHierro').value = reg.motivoHierro;
-        document.getElementById('mesHierro').value = reg.mesHierro;
-        document.getElementById('antiparasitario').value = reg.antiparasitario;
-        document.getElementById('unidadesAntip').value = reg.unidadesAntip;
-        document.getElementById('vitaminaA').value = reg.vitaminaA;
-        document.getElementById('vacunado').value = reg.vacunado;
-        document.getElementById('fechaCita').value = reg.fechaCita;
-        document.getElementById('espInfantil').value = reg.espInfantil;
-        document.getElementById('asistEspecialidad').value = reg.asistEspecialidad;
-        
-        calcularEdad();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        Swal.fire({ title: "Modo Edición", text: "Datos cargados correctamente.", icon: "info", timer: 1500, showConfirmButton: false });
+    function editarDesdeKardex(id) {
+        fetch(`${URL_REGISTRO}?getRowData=true&rowId=${id}`).then(r => r.json()).then(reg => {
+            historialGlobal = [reg]; cargarEdit(0);
+        });
     }
 
     function limpiarFormulario() {
         document.getElementById('registroForm').reset();
         document.getElementById('rowId').value = "";
-        const hoy = new Date().toISOString().split('T')[0];
-        document.getElementById('fechaAtencion').value = hoy;
+        document.getElementById('fechaAtencion').value = new Date().toISOString().split('T')[0];
         actualizarFechas();
-    }
-
-    function buscarCenso() {
-        let dni = document.getElementById('dni').value;
-        if(!dni) return Swal.fire("Atención", "Ingrese un DNI", "warning");
-        Swal.fire({ title: 'Buscando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-        fetch(`${URL_CENSO}?dni=${dni}`).then(res => res.json()).then(data => {
-            Swal.close();
-            if (data.status === "error" || !data.nombreB) {
-                Swal.fire("No encontrado", "DNI no existe en Censo", "error");
-            } else {
-                document.getElementById('nombreCompleto').value = data.nombreB;
-                document.getElementById('sexo').value = data.sexo;
-                document.getElementById('hc').value = data.hclinica;
-                document.getElementById('fichaFamiliar').value = data.ffamiliar;
-                document.getElementById('telefono').value = data.telefono;
-                document.getElementById('sector').value = data.sector;
-                if (data.fn && data.fn.includes('/')) {
-                    let p = data.fn.split('/'); document.getElementById('fn').value = `${p[2]}-${p[1]}-${p[0]}`;
-                } else { document.getElementById('fn').value = data.fn; }
-                calcularEdad();
-            }
-        }).catch(() => Swal.fire("Error", "Fallo al conectar", "error"));
-    }
-
-    function calcularEdad() {
-        let vAt = document.getElementById('fechaAtencion').value;
-        let vNa = document.getElementById('fn').value;
-        if (!vAt || !vNa) return;
-        let fAt = new Date(vAt + "T00:00:00"); let fNa = new Date(vNa + "T00:00:00");
-        let a = fAt.getFullYear() - fNa.getFullYear(); let m = fAt.getMonth() - fNa.getMonth(); let d = fAt.getDate() - fNa.getDate();
-        if (d < 0) { m--; d += new Date(fAt.getFullYear(), fAt.getMonth(), 0).getDate(); }
-        if (m < 0) { a--; m += 12; }
-        document.getElementById('edad').value = `${a} años, ${m} meses, ${d} días`;
     }
 
     document.getElementById('registroForm').onsubmit = function(e) {
         e.preventDefault();
         const btn = document.getElementById('btnGuardar');
-        btn.disabled = true;
-        btn.innerHTML = "Guardando... <i class='fas fa-spinner fa-spin ms-2'></i>";
-
-        const datos = {
+        btn.disabled = true; btn.innerHTML = "Guardando...";
+        
+        const d = {
             rowId: document.getElementById('rowId').value,
             fechaAtencion: document.getElementById('fechaAtencion').value,
             nombreCompleto: document.getElementById('nombreCompleto').value,
@@ -712,20 +404,9 @@ Aquí tienes el código completo y optimizado para reemplazar en tu archivo HTML
             asistEspecialidad: document.getElementById('asistEspecialidad').value
         };
 
-        const params = new URLSearchParams(datos).toString();
-        fetch(`${URL_REGISTRO}?${params}`, { method: 'GET', mode: 'no-cors' })
-            .then(() => {
-                Swal.fire("¡Éxito!", "Registro procesado correctamente", "success");
-                limpiarFormulario();
-                // Opcional: No recargar las tablas automáticamente para no re-saturar
-                // cargarHistorial(); 
-                // cargarVistaHorizontal();
-            })
-            .catch(() => Swal.fire("Error", "No se pudo conectar con el servidor", "error"))
-            .finally(() => {
-                btn.disabled = false;
-                btn.innerHTML = "Guardar Registro <i class='fas fa-save ms-2'></i>";
-            });
+        fetch(`${URL_REGISTRO}?${new URLSearchParams(d)}`, {mode:'no-cors'})
+            .then(() => { Swal.fire("Éxito", "Guardado", "success"); limpiarFormulario(); })
+            .finally(() => { btn.disabled=false; btn.innerHTML="Guardar Registro"; });
     };
 </script>
 </body>
