@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Atención Infantil - SIGIS_FED</title>
+    <title>Registro de Atención Infantil</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -13,6 +13,7 @@
         .btn-search { background-color: #2c3e50; color: white; transition: 0.3s; }
         .btn-search:hover { background-color: #34495e; color: white; }
         .form-label { font-weight: 500; font-size: 0.9rem; color: #555; }
+        .req-color { color: #d9534f; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -21,39 +22,39 @@
     <div class="row justify-content-center">
         <div class="col-lg-11">
             <div class="card p-4">
-                <h3 class="text-center mb-4"><i class="fas fa-clipboard-list me-2"></i>Modelo de Registro de Atención</h3>
+                <h3 class="text-center mb-4"><i class="fas fa-clipboard-list me-2"></i>Registro de Atención DIT </h3>
                 
                 <form id="registroForm">
                     <div class="row mb-4">
                         <div class="col-md-6">
-                            <label class="form-label">Consultar por DNI (Censo)</label>
+                            <label class="form-label">Consultar por DNI</label>
                             <div class="input-group">
                                 <input type="text" id="dni" class="form-control" placeholder="Ingrese DNI..." required>
                                 <button type="button" class="btn btn-search" onclick="buscarCenso()"><i class="fas fa-search"></i></button>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Fecha de Atención (A)</label>
+                            <label class="form-label">Fecha de Atención</label>
                             <input type="date" id="fechaAtencion" class="form-control" onchange="actualizarFechas()" required>
                         </div>
                     </div>
 
-                    <div class="section-title">Datos Personales (Censo)</div>
+                    <div class="section-title">Datos Personales</div>
                     <div class="row g-3 mb-4">
                         <div class="col-md-8">
-                            <label class="form-label">Apellidos y Nombres (B)</label>
+                            <label class="form-label">Apellidos y Nombres</label>
                             <input type="text" id="nombreCompleto" class="form-control bg-light" readonly>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label">Fecha de Nacimiento (D)</label>
+                            <label class="form-label">Fecha de Nacimiento</label>
                             <input type="date" id="fn" class="form-control bg-light" readonly onchange="calcularEdad()">
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Sexo (E)</label>
+                            <label class="form-label">Sexo</label>
                             <input type="text" id="sexo" class="form-control bg-light" readonly>
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label">Edad (F)</label>
+                            <label class="form-label">Edad</label>
                             <input type="text" id="edad" class="form-control bg-info-subtle" readonly placeholder="Cálculo automático">
                         </div>
                     </div>
@@ -61,32 +62,41 @@
                     <div class="section-title">Datos Administrativos y Sectorización</div>
                     <div class="row g-3 mb-4">
                         <div class="col-md-3">
-                            <label class="form-label">Historia Clínica (G)</label>
+                            <label class="form-label">Historia Clínica</label>
                             <input type="text" id="hc" class="form-control bg-light" readonly>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Ficha Familiar (H)</label>
+                            <label class="form-label">Ficha Familiar</label>
                             <input type="text" id="fichaFamiliar" class="form-control bg-light" readonly>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Teléfono (I)</label>
+                            <label class="form-label">Teléfono</label>
                             <input type="text" id="telefono" class="form-control bg-light" readonly>
                         </div>
                         <div class="col-md-3">
-                            <label class="form-label">Sector (J)</label>
+                            <label class="form-label">Sector</label>
                             <input type="text" id="sector" class="form-control bg-light" readonly>
                         </div>
                     </div>
 
                     <div class="section-title">Evaluación Nutricional y Suplementación</div>
                     <div class="row g-3 mb-4">
-                        <div class="col-md-2"><label class="form-label">N° CRED (K)</label><input type="text" id="cred" class="form-control"></div>
-                        <div class="col-md-2"><label class="form-label">Peso (L)</label><input type="text" id="peso" class="form-control"></div>
-                        <div class="col-md-2"><label class="form-label">Talla (M)</label><input type="text" id="talla" class="form-control"></div>
-                        <div class="col-md-2"><label class="form-label">IMC (N)</label><input type="text" id="imc" class="form-control"></div>
-                        <div class="col-md-2"><label class="form-label">Hb (O)</label><input type="text" id="hb" class="form-control"></div>
+                        <div class="col-md-2"><label class="form-label">N° CRED</label><input type="text" id="cred" class="form-control"></div>
                         <div class="col-md-2">
-                            <label class="form-label">Supl. Hierro (P)</label>
+                            <label class="form-label">Peso (kg)</label>
+                            <input type="number" step="0.001" id="peso" class="form-control" placeholder="0.000" oninput="calcularIMC()">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">Talla (m)</label>
+                            <input type="number" step="0.01" id="talla" class="form-control" placeholder="0.00" oninput="calcularIMC()">
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">IMC</label>
+                            <input type="text" id="imc" class="form-control bg-info-subtle" readonly placeholder="Auto">
+                        </div>
+                        <div class="col-md-2"><label class="form-label">Resultado HemoHb</label><input type="text" id="hb" class="form-control"></div>
+                        <div class="col-md-2">
+                            <label class="form-label">Supl. Hierro</label>
                             <select id="suplHierro" class="form-select">
                                 <option value="">Seleccione...</option>
                                 <option>Sulfato Ferroso en gotas</option>
@@ -144,13 +154,13 @@
                     <div class="section-title">Responsables de Atención</div>
                     <div class="row g-3 mb-4">
                         <div class="col-md-6">
-                            <label class="form-label">Esp. Infantil (Buscador)</label>
-                            <input type="text" id="espInfantil" class="form-control" list="listEsp" placeholder="Escriba para buscar...">
+                            <label class="form-label">Esp. Infantil <span class="req-color">*</span></label>
+                            <input type="text" id="espInfantil" class="form-control" list="listEsp" placeholder="Escriba para buscar..." required>
                             <datalist id="listEsp"></datalist>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label">Asist. Especialidad (Buscador)</label>
-                            <input type="text" id="asistEspecialidad" class="form-control" list="listAsist" placeholder="Escriba para buscar...">
+                            <label class="form-label">Asist. Especialidad <span class="req-color">*</span></label>
+                            <input type="text" id="asistEspecialidad" class="form-control" list="listAsist" placeholder="Escriba para buscar..." required>
                             <datalist id="listAsist"></datalist>
                         </div>
                     </div>
@@ -169,13 +179,27 @@
     const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
     const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbwUK1-DxYxeZcm11KEU-bKLmAsz2GG_xlnpMfm1jQaNzV6x84ey712aQzPM_Lgml1Gk/exec";
 
-    // Inicialización al cargar la página
     window.onload = function() {
         const hoy = new Date().toISOString().split('T')[0];
         document.getElementById('fechaAtencion').value = hoy;
-        actualizarFechas(); // Calcula cita +30 automáticamente
+        actualizarFechas(); 
         cargarListasExcel();
     };
+
+    // --- MEJORA: Cálculo de IMC Automático ---
+    function calcularIMC() {
+        const peso = parseFloat(document.getElementById('peso').value);
+        const talla = parseFloat(document.getElementById('talla').value);
+        const imcField = document.getElementById('imc');
+        
+        if (peso > 0 && talla > 0) {
+            // Fórmula: Peso / (Talla^2). Talla debe estar en metros (ej. 1.10)
+            const imc = peso / (talla * talla);
+            imcField.value = imc.toFixed(2);
+        } else {
+            imcField.value = "";
+        }
+    }
 
     function actualizarFechas() {
         const fAtencion = document.getElementById('fechaAtencion').value;
@@ -193,6 +217,8 @@
             .then(data => {
                 const dlEsp = document.getElementById('listEsp');
                 const dlAsist = document.getElementById('listAsist');
+                dlEsp.innerHTML = "";
+                dlAsist.innerHTML = "";
                 data.especialistas.forEach(item => { if(item) dlEsp.innerHTML += `<option value="${item}">`; });
                 data.asistentes.forEach(item => { if(item) dlAsist.innerHTML += `<option value="${item}">`; });
             })
@@ -289,7 +315,7 @@
             .then(() => {
                 Swal.fire("Éxito", "Registro guardado correctamente", "success");
                 document.getElementById('registroForm').reset();
-                window.onload(); // Reinicia fechas por defecto
+                window.onload(); 
             })
             .catch(() => Swal.fire("Error", "No se pudo guardar", "error"))
             .finally(() => {
