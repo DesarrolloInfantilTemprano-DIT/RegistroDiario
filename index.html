@@ -19,7 +19,7 @@
         .btn-edit:hover { color: #2980b9; }
         
         /* Estilos para Kardex */
-        .table-kardex { font-size: 0.85rem; min-width: 900px; } /* Mantiene legibilidad en celular */
+        .table-kardex { font-size: 0.85rem; min-width: 1100px; } /* Expandido para dar cabida a sector y telf */
         .table-kardex th { background: #2c3e50 !important; color: white !important; text-align: center; vertical-align: middle; }
         .fecha-click { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
         .mes-vacio { color: #ccc; font-style: italic; font-size: 0.75rem; text-align: center; }
@@ -195,44 +195,65 @@
             <div class="card p-4 mb-4">
                 <div class="section-title d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <span><i class="fas fa-arrows-alt-h me-2"></i>Seguimiento al Tratamiento de Anemia</span>
-                    <button class="btn btn-sm btn-outline-primary" onclick="cargarVistaHorizontal()"><i class="fas fa-sync"></i> Actualizar Kardex</button>
-                </div>
-
-                <div class="row g-2 mb-3 p-3 bg-light rounded border">
-                    <div class="col-md-6 col-12">
-                        <label class="form-label small fw-bold text-secondary"><i class="fas fa-user-search"></i> Buscar Paciente (Nombre o DNI)</label>
-                        <input type="text" id="buscarKardexPaciente" class="form-control form-control-sm" placeholder="Escriba apellidos, nombres o DNI..." onkeyup="filtrarKardexLocal()">
-                    </div>
-                    <div class="col-md-4 col-12">
-                        <label class="form-label small fw-bold text-secondary"><i class="fas fa-calendar-day"></i> Fecha de Inicio (MES-1)</label>
-                        <input type="date" id="buscarKardexFecha" class="form-control form-control-sm" onchange="filtrarKardexLocal()">
-                    </div>
-                    <div class="col-md-2 col-12 d-flex align-items-end">
-                        <button class="btn btn-sm btn-outline-danger w-100" type="button" onclick="limpiarFiltrosKardex()">
-                            <i class="fas fa-eraser"></i> Limpiar Filtros
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" type="button" id="btnToggleKardex" onclick="toggleModuloKardex()">
+                            <i class="fas fa-eye-slash text-danger"></i> Ocultar Módulo
                         </button>
+                        <button class="btn btn-sm btn-outline-primary" onclick="cargarVistaHorizontal()"><i class="fas fa-sync"></i> Actualizar Kardex</button>
                     </div>
                 </div>
 
-                <div class="table-responsive">
-                    <table class="table table-bordered table-sm table-kardex table-hover mb-0">
-                        <thead>
-                            <tr>
-                                <th>Nombres y Apellidos</th>
-                                <th style="width: 100px;">DNI</th>
-                                <th>MES-1</th>
-                                <th>MES-2</th>
-                                <th>MES-3</th>
-                                <th>MES-4</th>
-                                <th>MES-5</th>
-                                <th>MES-6</th>
-                                <th>MES-ALTA</th>
-                            </tr>
-                        </thead>
-                        <tbody id="cuerpoHorizontal">
-                            <tr><td colspan="9" class="text-center text-muted">Haga clic en "Actualizar Kardex" para ver los datos</td></tr>
-                        </tbody>
-                    </table>
+                <div id="cuerpoContenedorKardex">
+                    <div class="row g-2 mb-3 p-3 bg-light rounded border">
+                        <div class="col-md-4 col-12">
+                            <label class="form-label small fw-bold text-secondary"><i class="fas fa-user-search"></i> Buscar Paciente (Nombre o DNI)</label>
+                            <input type="text" id="buscarKardexPaciente" class="form-control form-control-sm" placeholder="Escriba apellidos, nombres o DNI..." onkeyup="filtrarKardexLocal()">
+                        </div>
+                        <div class="col-md-4 col-12">
+                            <label class="form-label small fw-bold text-secondary"><i class="fas fa-calendar-alt"></i> Fecha Inicio MES-1 (Rango)</label>
+                            <div class="input-group input-group-sm">
+                                <input type="date" id="buscarKardexFechaDesde" class="form-control" onchange="filtrarKardexLocal()">
+                                <span class="input-group-text bg-secondary text-white">al</span>
+                                <input type="date" id="buscarKardexFechaHasta" class="form-control" onchange="filtrarKardexLocal()">
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-12">
+                            <label class="form-label small fw-bold text-secondary"><i class="fas fa-exclamation-triangle"></i> Condición de Alerta</label>
+                            <select id="filtroInasistentesKardex" class="form-select form-select-sm" onchange="filtrarKardexLocal()">
+                                <option value="TODOS">Todos los pacientes</option>
+                                <option value="INASISTENTES">Solo Inasistentes 🔴</option>
+                                <option value="AL_DIA">Al día ✅</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 col-12 d-flex align-items-end">
+                            <button class="btn btn-sm btn-outline-danger w-100" type="button" onclick="limpiarFiltrosKardex()">
+                                <i class="fas fa-eraser"></i> Limpiar Filtros
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-sm table-kardex table-hover mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Nombres y Apellidos</th>
+                                    <th style="width: 90px;">DNI</th>
+                                    <th>Sector</th>
+                                    <th>Teléfono</th>
+                                    <th>MES-1</th>
+                                    <th>MES-2</th>
+                                    <th>MES-3</th>
+                                    <th>MES-4</th>
+                                    <th>MES-5</th>
+                                    <th>MES-6</th>
+                                    <th>MES-ALTA</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cuerpoHorizontal">
+                                <tr><td colspan="11" class="text-center text-muted">Haga clic en "Actualizar Kardex" para ver los datos</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -292,10 +313,10 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
-    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbz5qc5Y-HiChl9BdbQD1bobsHTgKoZYSLUrAySluxFDbhCACMr8pHofZpJkrjm-UGR6/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbw-lhIh7cFr53PVbYo9LiY1Wj7PaYYX-MmD5NjcIu3zDuvP7wwhmwQkS22p4yu66vgn/exec";
 
     let historialCompleto = [];
-    let kardexOriginal = []; // Almacena datos crudos del Kardex para filtros instantáneos
+    let kardexOriginal = []; 
 
     window.onload = function() {
         const hoy = new Date().toISOString().split('T')[0];
@@ -305,35 +326,97 @@
         cargarHistorial(); 
     };
 
-    // --- CARGAR KARDEX HORIZONTAL (BAJO DEMANDA) ---
+    // --- ACCIÓN PARA OCULTAR O MOSTRAR EL MÓDULO ---
+    function toggleModuloKardex() {
+        const contenedor = document.getElementById('cuerpoContenedorKardex');
+        const boton = document.getElementById('btnToggleKardex');
+        if (contenedor.style.display === "none") {
+            contenedor.style.display = "block";
+            boton.innerHTML = '<i class="fas fa-eye-slash text-danger"></i> Ocultar Módulo';
+        } else {
+            contenedor.style.display = "none";
+            boton.innerHTML = '<i class="fas fa-eye text-success"></i> Mostrar Módulo';
+        }
+    }
+
+    // --- CARGAR KARDEX HORIZONTAL (BAJO DEMANDA DESDE EL BACKEND CON PARÁMETROS) ---
     function cargarVistaHorizontal() {
         const tbody = document.getElementById('cuerpoHorizontal');
-        tbody.innerHTML = '<tr><td colspan="9" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Cargando Kardex...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="11" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Cargando Kardex...</td></tr>';
         
-        fetch(`${URL_REGISTRO}?getVistaHorizontal=true`)
+        // Enviamos los rangos estructurados al backend
+        const fDesde = document.getElementById('buscarKardexFechaDesde').value;
+        const fHasta = document.getElementById('buscarKardexFechaHasta').value;
+        
+        let urlFinal = `${URL_REGISTRO}?getVistaHorizontal=true`;
+        if (fDesde) urlFinal += `&fechaInicioDesde=${fDesde}`;
+        if (fHasta) urlFinal += `&fechaInicioHasta=${fHasta}`;
+
+        fetch(urlFinal)
             .then(res => res.json())
             .then(data => {
-                kardexOriginal = data; // Respaldamos la información
+                kardexOriginal = data; 
                 dibujarKardex(data);
                 Swal.fire({ title: "Kardex Actualizado", icon: "success", timer: 1000, showConfirmButton: false });
             })
             .catch(() => {
-                tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error al cargar datos del servidor</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="11" class="text-center text-danger">Error al cargar datos del servidor</td></tr>';
             });
     }
 
-    // --- DIBUJAR FILAS DEL KARDEX EN LA TABLA ---
+    // --- DIBUJAR FILAS DEL KARDEX CON CONTROL DE INASISTENCIAS ---
     function dibujarKardex(datos) {
         const tbody = document.getElementById('cuerpoHorizontal');
         tbody.innerHTML = "";
         if(datos.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No se encontraron registros</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">No se encontraron registros</td></tr>';
             return;
         }
+
+        // Definimos la fecha actual de referencia (3 de Junio de 2026)
+        const hoy = new Date(2026, 5, 3);
+
         datos.forEach(n => {
-            let fila = `<tr>
-                <td class="small"><b>${n.nombre}</b></td>
-                <td>${n.dni}</td>`;
+            // Evaluamos la inasistencia: mínimo de fecha a fecha debe ser de 30 días
+            let esInasistente = false;
+            let ultimaFechaValida = null;
+            let tieneAlta = n.meses[6] ? true : false; // meses[6] corresponde a MES-ALTA (Mes 7)
+
+            // Buscamos cronológicamente la última fecha de tratamiento que tenga registrada
+            for (let i = 5; i >= 0; i--) {
+                if (n.meses[i]) {
+                    let partes = n.meses[i].split("/");
+                    ultimaFechaValida = new Date(partes[2], partes[1] - 1, partes[0]);
+                    break;
+                }
+            }
+
+            // Si tiene tratamiento iniciado y no tiene asignado el alta médica
+            if (ultimaFechaValida && !tieneAlta) {
+                let diferenciaTiempo = hoy.getTime() - ultimaFechaValida.getTime();
+                let diferenciaDias = Math.floor(diferenciaTiempo / (1000 * 60 * 60 * 24));
+                if (diferenciaDias > 30) {
+                    esInasistente = true;
+                }
+            }
+
+            // Guardamos la propiedad de manera lógica temporal para los filtros locales
+            n.esInasistente = esInasistente;
+
+            // Filtro por select de condición
+            const condFiltro = document.getElementById('filtroInasistentesKardex').value;
+            if (condFiltro === "INASISTENTES" && !esInasistente) return;
+            if (condFiltro === "AL_DIA" && esInasistente) return;
+
+            // Pintado en rojo condicional si es inasistente (Utilizando clase Bootstrap table-danger)
+            let claseFila = esInasistente ? 'class="table-danger border-danger"' : '';
+
+            let fila = `<tr ${claseFila}>
+                <td class="small"><b>${n.nombre} ${esInasistente ? '🔴 (Inasistente)' : ''}</b></td>
+                <td>${n.dni}</td>
+                <td>${n.sector || '---'}</td>
+                <td>${n.telefono || '---'}</td>`;
+            
             for (let i = 0; i < 7; i++) {
                 if (n.meses[i]) {
                     fila += `<td class="text-center"><span class="fecha-click" onclick="editarDesdeRow(${n.rowIds[i]})">${n.meses[i]}</span></td>`;
@@ -344,26 +427,38 @@
             fila += `</tr>`;
             tbody.innerHTML += fila;
         });
+
+        if(tbody.innerHTML === "") {
+            tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">Ningún paciente cumple con la condición seleccionada</td></tr>';
+        }
     }
 
-    // --- FILTRADO LOCAL EN TIEMPO REAL DEL KARDEX ---
+    // --- FILTRADO LOCAL EN TIEMPO REAL DEL KARDEX (TEXTO + RANGO FECHA DESDE EL CLIENTE) ---
     function filtrarKardexLocal() {
         let textoBusqueda = document.getElementById('buscarKardexPaciente').value.toUpperCase().trim();
-        let fechaBusqueda = document.getElementById('buscarKardexFecha').value; // Formato yyyy-mm-dd
-
-        // Convertir formato HTML5 (yyyy-mm-dd) a formato Excel (dd/mm/yyyy) para comparar con MES-1
-        let fechaFormateada = "";
-        if(fechaBusqueda) {
-            let partes = fechaBusqueda.split("-");
-            fechaFormateada = partes[2] + "/" + partes[1] + "/" + partes[0];
-        }
+        let fDesde = document.getElementById('buscarKardexFechaDesde').value;
+        let fHasta = document.getElementById('buscarKardexFechaHasta').value;
 
         let datosFiltrados = kardexOriginal.filter(paciente => {
             let coincideTexto = paciente.nombre.toUpperCase().includes(textoBusqueda) || 
                                  paciente.dni.toString().includes(textoBusqueda);
             
-            // MES-1 está indexado en paciente.meses[0]
-            let coincideFecha = (fechaFormateada === "") || (paciente.meses[0] === fechaFormateada);
+            let coincideFecha = true;
+            if (paciente.meses[0]) { // meses[0] es MES-1
+                let partes = paciente.meses[0].split("/");
+                let fechaMes1 = new Date(partes[2], partes[1] - 1, partes[0]);
+                
+                if (fDesde) {
+                    let d = new Date(fDesde + "T00:00:00");
+                    if (fechaMes1 < d) coincideFecha = false;
+                }
+                if (fHasta) {
+                    let h = new Date(fHasta + "T00:00:00");
+                    if (fechaMes1 > h) coincideFecha = false;
+                }
+            } else if (fDesde || fHasta) {
+                coindeFecha = false;
+            }
 
             return coincideTexto && coincideFecha;
         });
@@ -374,7 +469,9 @@
     // --- LIMPIAR LOS INPUTS DEL FILTRO ---
     function limpiarFiltrosKardex() {
         document.getElementById('buscarKardexPaciente').value = "";
-        document.getElementById('buscarKardexFecha').value = "";
+        document.getElementById('buscarKardexFechaDesde').value = "";
+        document.getElementById('buscarKardexFechaHasta').value = "";
+        document.getElementById('filtroInasistentesKardex').value = "TODOS";
         dibujarKardex(kardexOriginal);
     }
 
