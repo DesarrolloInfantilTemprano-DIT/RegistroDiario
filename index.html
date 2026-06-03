@@ -19,12 +19,11 @@
         .btn-edit:hover { color: #2980b9; }
         
         /* Estilos para Kardex */
-        .table-kardex { font-size: 0.85rem; min-width: 1100px; } /* Expandido para dar cabida a sector y telf */
+        .table-kardex { font-size: 0.85rem; min-width: 1100px; }
         .table-kardex th { background: #2c3e50 !important; color: white !important; text-align: center; vertical-align: middle; }
         .fecha-click { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
         .mes-vacio { color: #ccc; font-style: italic; font-size: 0.75rem; text-align: center; }
 
-        /* Ajustes para celulares */
         @media (max-width: 576px) {
             .container-fluid { padding-left: 10px !important; padding-right: 10px !important; }
             .card { padding: 15px !important; }
@@ -39,6 +38,7 @@
     <div class="row justify-content-center">
         <div class="col-12">
             
+            <!-- FORMULARIO PRINCIPAL -->
             <div class="card p-4 mb-4">
                 <h3 class="text-center mb-4"><i class="fas fa-clipboard-list me-2"></i>Registro de Atención DIT </h3>
                 
@@ -192,6 +192,7 @@
                 </form>
             </div>
 
+            <!-- MODULO KARDEX -->
             <div class="card p-4 mb-4">
                 <div class="section-title d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <span><i class="fas fa-arrows-alt-h me-2"></i>Seguimiento al Tratamiento de Anemia</span>
@@ -257,52 +258,64 @@
                 </div>
             </div>
 
+            <!-- MODULO BUSQUEDA AVANZADA EN HISTORIAL (ACTUALIZADO SEGÚN SOLICITUD) -->
             <div class="card p-4">
-                <div class="section-title"><i class="fas fa-search-plus me-2"></i>Búsqueda Avanzada en Historial</div>
-                
-                <div class="row g-2 mb-4 bg-light p-3 rounded flex-wrap">
-                    <div class="col-md-3 col-6">
-                        <label class="form-label small text-muted">Desde (Atención)</label>
-                        <input type="date" id="filtroDesde" class="form-control form-control-sm">
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <label class="form-label small text-muted">Hasta (Atención)</label>
-                        <input type="date" id="filtroHasta" class="form-control form-control-sm">
-                    </div>
-                    <div class="col-md-2 col-6">
-                        <label class="form-label small text-muted">Mes Hierro</label>
-                        <select id="filtroMes" class="form-control form-control-sm">
-                            <option value="">Todos</option>
-                            <option value="1">Mes 1</option><option value="2">Mes 2</option>
-                            <option value="3">Mes 3</option><option value="4">Mes 4</option>
-                            <option value="5">Mes 5</option><option value="6">Mes 6</option>
-                            <option value="7">Mes 7</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2 col-6">
-                        <label class="form-label small text-muted">Palabra Clave</label>
-                        <input type="text" id="busquedaHistorial" class="form-control form-control-sm" placeholder="DNI o Nombre..." onkeyup="aplicarFiltros()">
-                    </div>
-                    <div class="col-md-2 col-12 d-flex align-items-end gap-1">
-                        <button class="btn btn-search btn-sm w-100" onclick="aplicarFiltros()"><i class="fas fa-filter"></i> Filtrar</button>
-                        <button class="btn btn-outline-secondary btn-sm" onclick="cargarHistorial()"><i class="fas fa-sync-alt"></i></button>
-                    </div>
+                <div class="section-title d-flex justify-content-between align-items-center flex-wrap gap-2">
+                    <span><i class="fas fa-search-plus me-2"></i>Búsqueda Avanzada en Historial</span>
+                    <button class="btn btn-sm btn-outline-secondary" type="button" id="btnToggleHistorial" onclick="toggleModuloHistorial()">
+                        <i class="fas fa-eye-slash text-danger"></i> Ocultar Historial
+                    </button>
                 </div>
+                
+                <div id="cuerpoContenedorHistorial">
+                    <div class="row g-2 mb-4 bg-light p-3 rounded flex-wrap">
+                        <div class="col-md-3 col-6">
+                            <label class="form-label small text-muted">Desde (Atención)</label>
+                            <input type="date" id="filtroDesde" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-3 col-6">
+                            <label class="form-label small text-muted">Hasta (Atención)</label>
+                            <input type="date" id="filtroHasta" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <label class="form-label small text-muted">Mes Hierro</label>
+                            <select id="filtroMes" class="form-control form-control-sm">
+                                <option value="">Todos</option>
+                                <option value="1">Mes 1</option><option value="2">Mes 2</option>
+                                <option value="3">Mes 3</option><option value="4">Mes 4</option>
+                                <option value="5">Mes 5</option><option value="6">Mes 6</option>
+                                <option value="7">Mes 7</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 col-6">
+                            <label class="form-label small text-muted">Palabra Clave</label>
+                            <input type="text" id="busquedaHistorial" class="form-control form-control-sm" placeholder="DNI o Nombre...">
+                        </div>
+                        <div class="col-md-2 col-12 d-flex align-items-end gap-1">
+                            <button class="btn btn-search btn-sm w-100" onclick="consultarHistorialServidor()"><i class="fas fa-filter"></i> Filtrar / Buscar</button>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="limpiarCamposHistorial()"><i class="fas fa-eraser"></i></button>
+                        </div>
+                    </div>
 
-                <div class="table-responsive table-container">
-                    <table class="table table-hover table-striped mb-0" style="min-width: 700px;">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Fecha</th>
-                                <th>DNI</th>
-                                <th>Paciente</th>
-                                <th>Mes</th>
-                                <th>Motivo</th>
-                                <th>Acción</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tablaCuerpo"></tbody>
-                    </table>
+                    <div class="table-responsive table-container">
+                        <table class="table table-hover table-striped mb-0" style="min-width: 1000px;">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>DNI</th>
+                                    <th>Paciente</th>
+                                    <th style="width: 70px;">Mes</th>
+                                    <th>Motivo</th>
+                                    <th>Esp. Infantil</th>
+                                    <th>Asist. Especialidad</th>
+                                    <th style="width: 60px;">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaCuerpo">
+                                <tr><td colspan="8" class="text-center text-muted">Establezca los parámetros de rango de fechas o DNI y haga clic en "Filtrar / Buscar"</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -313,7 +326,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
-    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbw-lhIh7cFr53PVbYo9LiY1Wj7PaYYX-MmD5NjcIu3zDuvP7wwhmwQkS22p4yu66vgn/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbwAZkeHOL_nWaPoBqxTL_8cLhAzU7nd1YWg3nSjncXXCQ2ofvpnA6yaCsfMmGbtsvs/exec";
 
     let historialCompleto = [];
     let kardexOriginal = []; 
@@ -323,10 +336,21 @@
         document.getElementById('fechaAtencion').value = hoy;
         actualizarFechas(); 
         cargarListasExcel();
-        cargarHistorial(); 
     };
 
-    // --- ACCIÓN PARA OCULTAR O MOSTRAR EL MÓDULO ---
+    // --- ACCIÓN PARA OCULTAR O MOSTRAR EL MÓDULO HISTORIAL ---
+    function toggleModuloHistorial() {
+        const contenedor = document.getElementById('cuerpoContenedorHistorial');
+        const boton = document.getElementById('btnToggleHistorial');
+        if (contenedor.style.display === "none") {
+            contenedor.style.display = "block";
+            boton.innerHTML = '<i class="fas fa-eye-slash text-danger"></i> Ocultar Historial';
+        } else {
+            contenedor.style.display = "none";
+            boton.innerHTML = '<i class="fas fa-eye text-success"></i> Mostrar Historial';
+        }
+    }
+
     function toggleModuloKardex() {
         const contenedor = document.getElementById('cuerpoContenedorKardex');
         const boton = document.getElementById('btnToggleKardex');
@@ -339,12 +363,95 @@
         }
     }
 
-    // --- CARGAR KARDEX HORIZONTAL (BAJO DEMANDA DESDE EL BACKEND CON PARÁMETROS) ---
+    // --- CONSULTA BAJO DEMANDA EXPLICITA PARA EL HISTORIAL ---
+    function consultarHistorialServidor() {
+        const fDesde = document.getElementById('filtroDesde').value;
+        const fHasta = document.getElementById('filtroHasta').value;
+        const palabraClave = document.getElementById('busquedaHistorial').value.trim();
+        const tbody = document.getElementById('tablaCuerpo');
+
+        // Validar que se ingrese al menos un criterio de búsqueda obligatorio
+        if (!palabraClave && (!fDesde || !fHasta)) {
+            Swal.fire("Criterios requeridos", "Por favor ingrese un rango de fechas completo o una Palabra Clave (DNI/Nombre) para realizar la consulta.", "warning");
+            return;
+        }
+
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Consultando el historial en el servidor...</td></tr>';
+
+        let urlFinal = `${URL_REGISTRO}?getHistorial=true`;
+
+        fetch(urlFinal)
+            .then(res => res.json())
+            .then(data => {
+                historialCompleto = data;
+                aplicarFiltrosLocalesHistorial();
+            })
+            .catch(() => { 
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error al obtener el historial desde el servidor</td></tr>'; 
+            });
+    }
+
+    // --- PROCESAR LOS FILTROS LOCALES SOBRE LOS DATOS OBTENIDOS ---
+    function aplicarFiltrosLocalesHistorial() {
+        const fDesde = document.getElementById('filtroDesde').value;
+        const fHasta = document.getElementById('filtroHasta').value;
+        const fMes = document.getElementById('filtroMes').value;
+        const busqueda = document.getElementById('busquedaHistorial').value.toLowerCase().trim();
+
+        const filtrados = historialCompleto.filter(reg => {
+            let cumpleFecha = true, cumpleMes = true, cumpleBusqueda = true;
+            if (fDesde && fHasta) cumpleFecha = (reg.fechaAtencion >= fDesde && reg.fechaAtencion <= fHasta);
+            if (fMes) cumpleMes = (reg.mesHierro == fMes);
+            if (busqueda) cumpleBusqueda = (reg.dni.includes(busqueda) || reg.nombreCompleto.toLowerCase().includes(busqueda));
+            return cumpleFecha && cumpleMes && cumpleBusqueda;
+        });
+
+        dibujarTablaHistorial(filtrados);
+    }
+
+    // --- CONSTRUIR LAS FILAS DEL HISTORIAL CON LAS NUEVAS COLUMNAS SOLICITADAS ---
+    function dibujarTablaHistorial(datos) {
+        const tbody = document.getElementById('tablaCuerpo');
+        tbody.innerHTML = "";
+        
+        if (datos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No se encontraron registros que coincidan con los filtros aplicados</td></tr>';
+            return;
+        }
+
+        datos.forEach((reg) => {
+            // Buscamos el index global original para no perder la referencia de edición
+            const indexOriginal = historialCompleto.indexOf(reg);
+
+            tbody.innerHTML += `
+                <tr>
+                    <td>${reg.fechaAtencion}</td>
+                    <td>${reg.dni}</td>
+                    <td>${reg.nombreCompleto}</td>
+                    <td class="text-center"><span class="badge bg-secondary">${reg.mesHierro || '-'}</span></td>
+                    <td>${reg.motivoHierro || ''}</td>
+                    <td>${reg.espInfantil || '---'}</td>
+                    <td>${reg.asistEspecialidad || '---'}</td>
+                    <td class="text-center">
+                        <i class="fas fa-edit btn-edit" title="Editar" onclick="llenarParaEditar(${indexOriginal})"></i>
+                    </td>
+                </tr>`;
+        });
+    }
+
+    function limpiarCamposHistorial() {
+        document.getElementById('filtroDesde').value = "";
+        document.getElementById('filtroHasta').value = "";
+        document.getElementById('filtroMes').value = "";
+        document.getElementById('busquedaHistorial').value = "";
+        document.getElementById('tablaCuerpo').innerHTML = '<tr><td colspan="8" class="text-center text-muted">Establezca los parámetros de rango de fechas o DNI y haga clic en "Filtrar / Buscar"</td></tr>';
+    }
+
+    // --- CARGAR KARDEX HORIZONTAL ---
     function cargarVistaHorizontal() {
         const tbody = document.getElementById('cuerpoHorizontal');
         tbody.innerHTML = '<tr><td colspan="11" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Cargando Kardex...</td></tr>';
         
-        // Enviamos los rangos estructurados al backend
         const fDesde = document.getElementById('buscarKardexFechaDesde').value;
         const fHasta = document.getElementById('buscarKardexFechaHasta').value;
         
@@ -364,7 +471,6 @@
             });
     }
 
-    // --- DIBUJAR FILAS DEL KARDEX CON CONTROL DE INASISTENCIAS ---
     function dibujarKardex(datos) {
         const tbody = document.getElementById('cuerpoHorizontal');
         tbody.innerHTML = "";
@@ -373,16 +479,13 @@
             return;
         }
 
-        // Definimos la fecha actual de referencia (3 de Junio de 2026)
         const hoy = new Date(2026, 5, 3);
 
         datos.forEach(n => {
-            // Evaluamos la inasistencia: mínimo de fecha a fecha debe ser de 30 días
             let esInasistente = false;
             let ultimaFechaValida = null;
-            let tieneAlta = n.meses[6] ? true : false; // meses[6] corresponde a MES-ALTA (Mes 7)
+            let tieneAlta = n.meses[6] ? true : false;
 
-            // Buscamos cronológicamente la última fecha de tratamiento que tenga registrada
             for (let i = 5; i >= 0; i--) {
                 if (n.meses[i]) {
                     let partes = n.meses[i].split("/");
@@ -391,7 +494,6 @@
                 }
             }
 
-            // Si tiene tratamiento iniciado y no tiene asignado el alta médica
             if (ultimaFechaValida && !tieneAlta) {
                 let diferenciaTiempo = hoy.getTime() - ultimaFechaValida.getTime();
                 let diferenciaDias = Math.floor(diferenciaTiempo / (1000 * 60 * 60 * 24));
@@ -400,15 +502,12 @@
                 }
             }
 
-            // Guardamos la propiedad de manera lógica temporal para los filtros locales
             n.esInasistente = esInasistente;
 
-            // Filtro por select de condición
             const condFiltro = document.getElementById('filtroInasistentesKardex').value;
             if (condFiltro === "INASISTENTES" && !esInasistente) return;
             if (condFiltro === "AL_DIA" && esInasistente) return;
 
-            // Pintado en rojo condicional si es inasistente (Utilizando clase Bootstrap table-danger)
             let claseFila = esInasistente ? 'class="table-danger border-danger"' : '';
 
             let fila = `<tr ${claseFila}>
@@ -433,7 +532,6 @@
         }
     }
 
-    // --- FILTRADO LOCAL EN TIEMPO REAL DEL KARDEX (TEXTO + RANGO FECHA DESDE EL CLIENTE) ---
     function filtrarKardexLocal() {
         let textoBusqueda = document.getElementById('buscarKardexPaciente').value.toUpperCase().trim();
         let fDesde = document.getElementById('buscarKardexFechaDesde').value;
@@ -444,7 +542,7 @@
                                  paciente.dni.toString().includes(textoBusqueda);
             
             let coincideFecha = true;
-            if (paciente.meses[0]) { // meses[0] es MES-1
+            if (paciente.meses[0]) {
                 let partes = paciente.meses[0].split("/");
                 let fechaMes1 = new Date(partes[2], partes[1] - 1, partes[0]);
                 
@@ -466,7 +564,6 @@
         dibujarKardex(datosFiltrados);
     }
 
-    // --- LIMPIAR LOS INPUTS DEL FILTRO ---
     function limpiarFiltrosKardex() {
         document.getElementById('buscarKardexPaciente').value = "";
         document.getElementById('buscarKardexFechaDesde').value = "";
@@ -476,12 +573,16 @@
     }
 
     function editarDesdeRow(rowId) {
+        if(historialCompleto.length === 0) {
+            Swal.fire("Consultar Historial", "Por favor haga clic primero en 'Filtrar / Buscar' dentro de la sección Historial para enlazar este elemento correctamente.", "info");
+            return;
+        }
         const reg = historialCompleto.find(r => r.rowId == rowId);
         if (reg) {
             const index = historialCompleto.indexOf(reg);
             llenarParaEditar(index);
         } else {
-            Swal.fire("Nota", "Por favor, recargue el historial antes de editar desde el Kardex.", "info");
+            Swal.fire("Nota", "Elemento no cargado localmente. Ejecute la búsqueda en el Historial.", "info");
         }
     }
 
@@ -516,53 +617,6 @@
                 data.asistentes.forEach(item => { if(item) dlAsist.innerHTML += `<option value="${item}">`; });
             })
             .catch(err => console.error("Error cargando listas:", err));
-    }
-
-    function cargarHistorial() {
-        const tbody = document.getElementById('tablaCuerpo');
-        tbody.innerHTML = '<tr><td colspan="6" class="text-center">Cargando historial...</td></tr>';
-        
-        fetch(`${URL_REGISTRO}?getHistorial=true`)
-            .then(res => res.json())
-            .then(data => {
-                historialCompleto = data;
-                dibujarTabla(data);
-            })
-            .catch(() => { tbody.innerHTML = '<tr><td colspan="6" class="text-center text-danger">Error al obtener historial</td></tr>'; });
-    }
-
-    function dibujarTabla(datos) {
-        const tbody = document.getElementById('tablaCuerpo');
-        tbody.innerHTML = "";
-        datos.forEach((reg, index) => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${reg.fechaAtencion}</td>
-                    <td>${reg.dni}</td>
-                    <td>${reg.nombreCompleto}</td>
-                    <td class="text-center"><span class="badge bg-secondary">${reg.mesHierro || '-'}</span></td>
-                    <td>${reg.motivoHierro}</td>
-                    <td class="text-center">
-                        <i class="fas fa-edit btn-edit" title="Editar" onclick="llenarParaEditar(${index})"></i>
-                    </td>
-                </tr>`;
-        });
-    }
-
-    function aplicarFiltros() {
-        const fDesde = document.getElementById('filtroDesde').value;
-        const fHasta = document.getElementById('filtroHasta').value;
-        const fMes = document.getElementById('filtroMes').value;
-        const busqueda = document.getElementById('busquedaHistorial').value.toLowerCase();
-
-        const filtrados = historialCompleto.filter(reg => {
-            let cumpleFecha = true, cumpleMes = true, cumpleBusqueda = true;
-            if (fDesde && fHasta) cumpleFecha = (reg.fechaAtencion >= fDesde && reg.fechaAtencion <= fHasta);
-            if (fMes) cumpleMes = (reg.mesHierro == fMes);
-            if (busqueda) cumpleBusqueda = (reg.dni.includes(busqueda) || reg.nombreCompleto.toLowerCase().includes(busqueda));
-            return cumpleFecha && cumpleMes && cumpleBusqueda;
-        });
-        dibujarTabla(filtrados);
     }
 
     function llenarParaEditar(index) {
@@ -694,7 +748,7 @@
             .then(() => {
                 Swal.fire("¡Éxito!", "Registro procesado correctamente", "success");
                 limpiarFormulario();
-                cargarHistorial(); 
+                if(historialCompleto.length > 0) consultarHistorialServidor(); 
             })
             .catch(() => Swal.fire("Error", "No se pudo conectar con el servidor", "error"))
             .finally(() => {
