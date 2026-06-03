@@ -19,32 +19,41 @@
         .btn-edit:hover { color: #2980b9; }
         
         /* Estilos para Kardex */
-        .table-kardex { font-size: 0.85rem; }
+        .table-kardex { font-size: 0.85rem; min-width: 900px; } /* Mantiene legibilidad en celular */
         .table-kardex th { background: #2c3e50 !important; color: white !important; text-align: center; vertical-align: middle; }
         .fecha-click { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
         .mes-vacio { color: #ccc; font-style: italic; font-size: 0.75rem; text-align: center; }
+
+        /* Ajustes para celulares */
+        @media (max-width: 576px) {
+            .container-fluid { padding-left: 10px !important; padding-right: 10px !important; }
+            .card { padding: 15px !important; }
+            h3 { font-size: 1.4rem; }
+            .btn-lg { width: 100%; margin-bottom: 10px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container py-5">
+<div class="container-fluid px-4 py-4">
     <div class="row justify-content-center">
-        <div class="col-lg-11">
-            <div class="card p-4 mb-5">
+        <div class="col-12">
+            
+            <div class="card p-4 mb-4">
                 <h3 class="text-center mb-4"><i class="fas fa-clipboard-list me-2"></i>Registro de Atención DIT </h3>
                 
                 <form id="registroForm">
                     <input type="hidden" id="rowId" value="">
 
-                    <div class="row mb-4">
-                        <div class="col-md-6">
+                    <div class="row mb-4 g-3">
+                        <div class="col-md-6 col-12">
                             <label class="form-label">Consultar por DNI</label>
                             <div class="input-group">
                                 <input type="text" id="dni" class="form-control" placeholder="Ingrese DNI..." required>
                                 <button type="button" class="btn btn-search" onclick="buscarCenso()"><i class="fas fa-search"></i></button>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 col-12">
                             <label class="form-label">Fecha de Atención</label>
                             <input type="date" id="fechaAtencion" class="form-control" onchange="actualizarFechas()" required>
                         </div>
@@ -52,39 +61,39 @@
 
                     <div class="section-title">Datos Personales</div>
                     <div class="row g-3 mb-4">
-                        <div class="col-md-8">
+                        <div class="col-md-5 col-12">
                             <label class="form-label">Apellidos y Nombres</label>
                             <input type="text" id="nombreCompleto" class="form-control bg-light" readonly>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-3 col-12">
                             <label class="form-label">Fecha de Nacimiento</label>
                             <input type="date" id="fn" class="form-control bg-light" readonly onchange="calcularEdad()">
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2 col-6">
                             <label class="form-label">Sexo</label>
                             <input type="text" id="sexo" class="form-control bg-light" readonly>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-2 col-6">
                             <label class="form-label">Edad</label>
-                            <input type="text" id="edad" class="form-control bg-info-subtle" readonly placeholder="Cálculo automático">
+                            <input type="text" id="edad" class="form-control bg-info-subtle" readonly placeholder="Automático">
                         </div>
                     </div>
 
                     <div class="section-title">Datos Administrativos y Sectorización</div>
                     <div class="row g-3 mb-4">
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-6">
                             <label class="form-label">Historia Clínica</label>
                             <input type="text" id="hc" class="form-control bg-light" readonly>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-6">
                             <label class="form-label">Ficha Familiar</label>
                             <input type="text" id="fichaFamiliar" class="form-control bg-light" readonly>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-6">
                             <label class="form-label">Teléfono</label>
                             <input type="text" id="telefono" class="form-control bg-light" readonly>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-3 col-6">
                             <label class="form-label">Sector</label>
                             <input type="text" id="sector" class="form-control bg-light" readonly>
                         </div>
@@ -92,21 +101,21 @@
 
                     <div class="section-title">Evaluación Nutricional y Suplementación</div>
                     <div class="row g-3 mb-4">
-                        <div class="col-md-2"><label class="form-label">N° CRED</label><input type="text" id="cred" class="form-control"></div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 col-6"><label class="form-label">N° CRED</label><input type="text" id="cred" class="form-control"></div>
+                        <div class="col-md-2 col-6">
                             <label class="form-label">Peso (kg)</label>
                             <input type="number" step="0.001" id="peso" class="form-control" placeholder="0.000" oninput="calcularIMC()">
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 col-6">
                             <label class="form-label">Talla (m)</label>
                             <input type="number" step="0.01" id="talla" class="form-control" placeholder="0.00" oninput="calcularIMC()">
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 col-6">
                             <label class="form-label">IMC</label>
                             <input type="text" id="imc" class="form-control bg-info-subtle" readonly placeholder="Auto">
                         </div>
-                        <div class="col-md-2"><label class="form-label">Resultado HemoHb</label><input type="text" id="hb" class="form-control"></div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 col-6"><label class="form-label">Resultado HemoHb</label><input type="text" id="hb" class="form-control"></div>
+                        <div class="col-md-2 col-6">
                             <label class="form-label">Supl. Hierro</label>
                             <select id="suplHierro" class="form-select">
                                 <option value="">Seleccione...</option>
@@ -121,16 +130,16 @@
 
                     <div class="section-title">Tratamiento, Vacunas y Citas</div>
                     <div class="row g-3 mb-4">
-                        <div class="col-md-2"><label class="form-label">N° Unid. Hierro</label><input type="number" id="unidadesHierro" class="form-control"></div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 col-6"><label class="form-label">N° Unid. Hierro</label><input type="number" id="unidadesHierro" class="form-control"></div>
+                        <div class="col-md-2 col-6">
                             <label class="form-label">Motivo Hierro</label>
                             <select id="motivoHierro" class="form-select">
                                 <option>Preventivo</option>
                                 <option>Tratamiento</option>
                             </select>
                         </div>
-                        <div class="col-md-2"><label class="form-label">N° Mes Hierro</label><input type="number" id="mesHierro" class="form-control" min="1" max="7"></div>
-                        <div class="col-md-4">
+                        <div class="col-md-2 col-6"><label class="form-label">N° Mes Hierro</label><input type="number" id="mesHierro" class="form-control" min="1" max="7"></div>
+                        <div class="col-md-3 col-6">
                             <label class="form-label">Antiparasitario</label>
                             <select id="antiparasitario" class="form-select">
                                 <option value="">Ninguno</option>
@@ -140,23 +149,23 @@
                                 <option>Mebendazol en Tableta</option>
                             </select>
                         </div>
-                        <div class="col-md-2"><label class="form-label">Unid. Antip.</label><input type="number" id="unidadesAntip" class="form-control"></div>
-                        <div class="col-md-3">
-                            <label class="form-label">N° Vitamina A</label>
+                        <div class="col-md-1 col-4"><label class="form-label">Unid.</label><input type="number" id="unidadesAntip" class="form-control"></div>
+                        <div class="col-md-2 col-4">
+                            <label class="form-label">Vitamina A</label>
                             <select id="vitaminaA" class="form-select">
                                 <option value="">Seleccione...</option>
                                 <option>100000 UI</option>
                                 <option>200000 UI</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2 col-4">
                             <label class="form-label">Vacunado</label>
                             <select id="vacunado" class="form-select">
                                 <option value="No">No</option>
                                 <option value="Si">Si</option>
                             </select>
                         </div>
-                        <div class="col-md-3">
+                        <div class="col-md-2 col-12">
                             <label class="form-label">Fecha Cita</label>
                             <input type="date" id="fechaCita" class="form-control">
                         </div>
@@ -164,36 +173,53 @@
 
                     <div class="section-title">Responsables de Atención</div>
                     <div class="row g-3 mb-4">
-                        <div class="col-md-6">
+                        <div class="col-md-6 col-12">
                             <label class="form-label">Esp. Infantil <span class="req-color">*</span></label>
                             <input type="text" id="espInfantil" class="form-control" list="listEsp" placeholder="Escriba para buscar..." required>
                             <datalist id="listEsp"></datalist>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 col-12">
                             <label class="form-label">Asist. Especialidad <span class="req-color">*</span></label>
                             <input type="text" id="asistEspecialidad" class="form-control" list="listAsist" placeholder="Escriba para buscar..." required>
                             <datalist id="listAsist"></datalist>
                         </div>
                     </div>
 
-                    <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
+                    <div class="d-flex flex-column flex-md-row gap-2 justify-content-md-end mt-4">
                         <button type="button" class="btn btn-secondary btn-lg px-4" onclick="limpiarFormulario()">Limpiar / Nuevo</button>
                         <button type="submit" id="btnGuardar" class="btn btn-primary btn-lg px-5">Guardar Registro <i class="fas fa-save ms-2"></i></button>
                     </div>
                 </form>
             </div>
 
-            <div class="card p-4 mb-5">
-                <div class="section-title d-flex justify-content-between align-items-center">
+            <div class="card p-4 mb-4">
+                <div class="section-title d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <span><i class="fas fa-arrows-alt-h me-2"></i>Seguimiento al Tratamiento de Anemia</span>
-                    <button class="btn btn-sm btn-outline-primary" onclick="cargarVistaHorizontal()"><i class="fas fa-sync"></i> Actualizar</button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="cargarVistaHorizontal()"><i class="fas fa-sync"></i> Actualizar Kardex</button>
                 </div>
+
+                <div class="row g-2 mb-3 p-3 bg-light rounded border">
+                    <div class="col-md-6 col-12">
+                        <label class="form-label small fw-bold text-secondary"><i class="fas fa-user-search"></i> Buscar Paciente (Nombre o DNI)</label>
+                        <input type="text" id="buscarKardexPaciente" class="form-control form-control-sm" placeholder="Escriba apellidos, nombres o DNI..." onkeyup="filtrarKardexLocal()">
+                    </div>
+                    <div class="col-md-4 col-12">
+                        <label class="form-label small fw-bold text-secondary"><i class="fas fa-calendar-day"></i> Fecha de Inicio (MES-1)</label>
+                        <input type="date" id="buscarKardexFecha" class="form-control form-control-sm" onchange="filtrarKardexLocal()">
+                    </div>
+                    <div class="col-md-2 col-12 d-flex align-items-end">
+                        <button class="btn btn-sm btn-outline-danger w-100" type="button" onclick="limpiarFiltrosKardex()">
+                            <i class="fas fa-eraser"></i> Limpiar Filtros
+                        </button>
+                    </div>
+                </div>
+
                 <div class="table-responsive">
-                    <table class="table table-bordered table-sm table-kardex table-hover">
+                    <table class="table table-bordered table-sm table-kardex table-hover mb-0">
                         <thead>
                             <tr>
                                 <th>Nombres y Apellidos</th>
-                                <th>DNI</th>
+                                <th style="width: 100px;">DNI</th>
                                 <th>MES-1</th>
                                 <th>MES-2</th>
                                 <th>MES-3</th>
@@ -213,16 +239,16 @@
             <div class="card p-4">
                 <div class="section-title"><i class="fas fa-search-plus me-2"></i>Búsqueda Avanzada en Historial</div>
                 
-                <div class="row g-2 mb-4 bg-light p-3 rounded">
-                    <div class="col-md-3">
+                <div class="row g-2 mb-4 bg-light p-3 rounded flex-wrap">
+                    <div class="col-md-3 col-6">
                         <label class="form-label small text-muted">Desde (Atención)</label>
                         <input type="date" id="filtroDesde" class="form-control form-control-sm">
                     </div>
-                    <div class="col-md-3">
+                    <div class="col-md-3 col-6">
                         <label class="form-label small text-muted">Hasta (Atención)</label>
                         <input type="date" id="filtroHasta" class="form-control form-control-sm">
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 col-6">
                         <label class="form-label small text-muted">Mes Hierro</label>
                         <select id="filtroMes" class="form-control form-control-sm">
                             <option value="">Todos</option>
@@ -232,18 +258,18 @@
                             <option value="7">Mes 7</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-2 col-6">
                         <label class="form-label small text-muted">Palabra Clave</label>
                         <input type="text" id="busquedaHistorial" class="form-control form-control-sm" placeholder="DNI o Nombre..." onkeyup="aplicarFiltros()">
                     </div>
-                    <div class="col-md-2 d-flex align-items-end gap-1">
+                    <div class="col-md-2 col-12 d-flex align-items-end gap-1">
                         <button class="btn btn-search btn-sm w-100" onclick="aplicarFiltros()"><i class="fas fa-filter"></i> Filtrar</button>
                         <button class="btn btn-outline-secondary btn-sm" onclick="cargarHistorial()"><i class="fas fa-sync-alt"></i></button>
                     </div>
                 </div>
 
-                <div class="table-container">
-                    <table class="table table-hover table-striped">
+                <div class="table-responsive table-container">
+                    <table class="table table-hover table-striped mb-0" style="min-width: 700px;">
                         <thead class="table-dark">
                             <tr>
                                 <th>Fecha</th>
@@ -266,9 +292,10 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
-    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbzO1LtUx-ePLhy-uAAUp9YUOH3bBZplHiHv4BeEDfnJYEkmE1OvpAhnP9yOA0gFc-iI/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbz5qc5Y-HiChl9BdbQD1bobsHTgKoZYSLUrAySluxFDbhCACMr8pHofZpJkrjm-UGR6/exec";
 
     let historialCompleto = [];
+    let kardexOriginal = []; // Almacena datos crudos del Kardex para filtros instantáneos
 
     window.onload = function() {
         const hoy = new Date().toISOString().split('T')[0];
@@ -276,7 +303,6 @@
         actualizarFechas(); 
         cargarListasExcel();
         cargarHistorial(); 
-        // No carga el Kardex automáticamente para evitar sobrecarga
     };
 
     // --- CARGAR KARDEX HORIZONTAL (BAJO DEMANDA) ---
@@ -287,30 +313,69 @@
         fetch(`${URL_REGISTRO}?getVistaHorizontal=true`)
             .then(res => res.json())
             .then(data => {
-                tbody.innerHTML = "";
-                if(data.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No se encontraron registros</td></tr>';
-                    return;
-                }
-                data.forEach(n => {
-                    let fila = `<tr>
-                        <td class="small"><b>${n.nombre}</b></td>
-                        <td>${n.dni}</td>`;
-                    for (let i = 0; i < 7; i++) {
-                        if (n.meses[i]) {
-                            fila += `<td class="text-center"><span class="fecha-click" onclick="editarDesdeRow(${n.rowIds[i]})">${n.meses[i]}</span></td>`;
-                        } else {
-                            fila += `<td class="mes-vacio">---</td>`;
-                        }
-                    }
-                    fila += `</tr>`;
-                    tbody.innerHTML += fila;
-                });
+                kardexOriginal = data; // Respaldamos la información
+                dibujarKardex(data);
                 Swal.fire({ title: "Kardex Actualizado", icon: "success", timer: 1000, showConfirmButton: false });
             })
             .catch(() => {
                 tbody.innerHTML = '<tr><td colspan="9" class="text-center text-danger">Error al cargar datos del servidor</td></tr>';
             });
+    }
+
+    // --- DIBUJAR FILAS DEL KARDEX EN LA TABLA ---
+    function dibujarKardex(datos) {
+        const tbody = document.getElementById('cuerpoHorizontal');
+        tbody.innerHTML = "";
+        if(datos.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" class="text-center text-muted">No se encontraron registros</td></tr>';
+            return;
+        }
+        datos.forEach(n => {
+            let fila = `<tr>
+                <td class="small"><b>${n.nombre}</b></td>
+                <td>${n.dni}</td>`;
+            for (let i = 0; i < 7; i++) {
+                if (n.meses[i]) {
+                    fila += `<td class="text-center"><span class="fecha-click" onclick="editarDesdeRow(${n.rowIds[i]})">${n.meses[i]}</span></td>`;
+                } else {
+                    fila += `<td class="mes-vacio">---</td>`;
+                }
+            }
+            fila += `</tr>`;
+            tbody.innerHTML += fila;
+        });
+    }
+
+    // --- FILTRADO LOCAL EN TIEMPO REAL DEL KARDEX ---
+    function filtrarKardexLocal() {
+        let textoBusqueda = document.getElementById('buscarKardexPaciente').value.toUpperCase().trim();
+        let fechaBusqueda = document.getElementById('buscarKardexFecha').value; // Formato yyyy-mm-dd
+
+        // Convertir formato HTML5 (yyyy-mm-dd) a formato Excel (dd/mm/yyyy) para comparar con MES-1
+        let fechaFormateada = "";
+        if(fechaBusqueda) {
+            let partes = fechaBusqueda.split("-");
+            fechaFormateada = partes[2] + "/" + partes[1] + "/" + partes[0];
+        }
+
+        let datosFiltrados = kardexOriginal.filter(paciente => {
+            let coincideTexto = paciente.nombre.toUpperCase().includes(textoBusqueda) || 
+                                 paciente.dni.toString().includes(textoBusqueda);
+            
+            // MES-1 está indexado en paciente.meses[0]
+            let coincideFecha = (fechaFormateada === "") || (paciente.meses[0] === fechaFormateada);
+
+            return coincideTexto && coincideFecha;
+        });
+
+        dibujarKardex(datosFiltrados);
+    }
+
+    // --- LIMPIAR LOS INPUTS DEL FILTRO ---
+    function limpiarFiltrosKardex() {
+        document.getElementById('buscarKardexPaciente').value = "";
+        document.getElementById('buscarKardexFecha').value = "";
+        dibujarKardex(kardexOriginal);
     }
 
     function editarDesdeRow(rowId) {
@@ -476,7 +541,7 @@
         let a = fAt.getFullYear() - fNa.getFullYear(); let m = fAt.getMonth() - fNa.getMonth(); let d = fAt.getDate() - fNa.getDate();
         if (d < 0) { m--; d += new Date(fAt.getFullYear(), fAt.getMonth(), 0).getDate(); }
         if (m < 0) { a--; m += 12; }
-        document.getElementById('edad').value = `${a} años, ${m} meses, ${d} días`;
+        document.getElementById('edad').value = `${a} añ, ${m} mes, ${d} día`;
     }
 
     document.getElementById('registroForm').onsubmit = function(e) {
@@ -486,7 +551,6 @@
         const mesActual = document.getElementById('mesHierro').value;
         const rowId = document.getElementById('rowId').value;
 
-        // VALIDACIÓN: Evitar duplicar el mismo mes para el mismo niño si es un registro nuevo
         if (!rowId && mesActual) {
             const yaRegistrado = historialCompleto.find(r => r.dni === dniActual && r.mesHierro == mesActual);
             if (yaRegistrado) {
@@ -534,7 +598,6 @@
                 Swal.fire("¡Éxito!", "Registro procesado correctamente", "success");
                 limpiarFormulario();
                 cargarHistorial(); 
-                // No actualizamos Kardex automáticamente para mantener eficiencia
             })
             .catch(() => Swal.fire("Error", "No se pudo conectar con el servidor", "error"))
             .finally(() => {
