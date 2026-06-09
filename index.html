@@ -24,11 +24,36 @@
         .fecha-click { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
         .mes-vacio { color: #ccc; font-style: italic; font-size: 0.75rem; text-align: center; }
 
+        /* Estilos Modernos Dashboard de Estadísticas */
+        .modal-stats-dark .modal-content { background: #111827; color: #f3f4f6; border-radius: 16px; border: 1px solid #374151; }
+        .modal-stats-dark .modal-header { border-bottom: 1px solid #1f2937; }
+        .modal-stats-dark .modal-footer { border-top: 1px solid #1f2937; }
+        .stats-card-mini { background: #1f2937; border: 1px solid #374151; border-radius: 12px; padding: 15px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .podium-container { display: flex; justify-content: center; align-items: flex-end; gap: 15px; margin: 35px 0 20px 0; padding-top: 20px; }
+        .podium-place { background: linear-gradient(135deg, #1f2937, #111827); border: 2px solid #4b5563; border-radius: 14px; padding: 15px; text-align: center; position: relative; min-width: 140px; transition: transform 0.3s ease; }
+        .podium-place:hover { transform: translateY(-5px); }
+        .podium-1 { height: 190px; border-color: #fbbf24; background: linear-gradient(135deg, #78350f, #111827); order: 2; }
+        .podium-2 { height: 160px; border-color: #9ca3af; background: linear-gradient(135deg, #374151, #111827); order: 1; }
+        .podium-3 { height: 135px; border-color: #b45309; background: linear-gradient(135deg, #451a03, #111827); order: 3; }
+        .trophy-icon { font-size: 2.3rem; display: block; margin-bottom: 6px; animation: floatTrophy 3s ease-in-out infinite; }
+        .podium-1 .trophy-icon { color: #fbbf24; filter: drop-shadow(0 0 12px rgba(251,191,36,0.5)); }
+        .podium-2 .trophy-icon { color: #d1d5db; filter: drop-shadow(0 0 10px rgba(209,213,219,0.3)); }
+        .podium-3 .trophy-icon { color: #d97706; filter: drop-shadow(0 0 10px rgba(217,119,6,0.3)); }
+        .podium-name { font-size: 0.85rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; color: #f9fafb; }
+        .podium-count { font-size: 1.5rem; font-weight: 800; display: block; margin-top: 4px; }
+        
+        @keyframes floatTrophy {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
         @media (max-width: 576px) {
             .container-fluid { padding-left: 10px !important; padding-right: 10px !important; }
             .card { padding: 15px !important; }
             h3 { font-size: 1.4rem; }
             .btn-lg { width: 100%; margin-bottom: 10px; }
+            .podium-container { flex-direction: column; align-items: center; gap: 20px; }
+            .podium-place { width: 100%; height: auto !important; order: unset !important; }
         }
     </style>
 </head>
@@ -261,6 +286,7 @@
                 <div class="section-title d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <span><i class="fas fa-search-plus me-2"></i>Búsqueda Avanzada en Historial</span>
                     <div class="d-flex gap-2 text-end">
+                        <button class="btn btn-sm text-white" style="background: linear-gradient(135deg, #6366f1, #4f46e5); border: none;" onclick="abrirModalEstadisticas()"><i class="fas fa-chart-bar me-1"></i> Ver Estadísticas</button>
                         <button class="btn btn-sm btn-success text-white" onclick="exportarExcelHistorial()"><i class="fas fa-file-excel me-1"></i> Exportar Excel</button>
                         <button class="btn btn-sm btn-outline-secondary" type="button" id="btnToggleHistorial" onclick="toggleModuloHistorial()">
                             <i class="fas fa-eye-slash text-danger"></i> Ocultar Historial
@@ -324,6 +350,71 @@
     </div>
 </div>
 
+<div class="modal fade modal-stats-dark" id="modalEstadisticas" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-chart-line text-info me-2"></i>Rendimiento de Especialistas Infantiles</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-2 mb-4 align-items-end p-3 rounded" style="background-color: #1f2937;">
+                    <div class="col-md-5 col-6">
+                        <label class="form-label small text-secondary">Filtrar Desde (Estadísticas)</label>
+                        <input type="date" id="statsDesde" class="form-control form-control-sm bg-dark text-white border-secondary">
+                    </div>
+                    <div class="col-md-5 col-6">
+                        <label class="form-label small text-secondary">Filtrar Hasta (Estadísticas)</label>
+                        <input type="date" id="statsHasta" class="form-control form-control-sm bg-dark text-white border-secondary">
+                    </div>
+                    <div class="col-md-2 col-12">
+                        <button class="btn btn-info btn-sm w-100 fw-bold" onclick="procesarEstadisticasInternas()"><i class="fas fa-sync-alt"></i> Filtrar</button>
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6 col-12">
+                        <div class="stats-card-mini">
+                            <div class="text-secondary small fw-bold">TOTAL DE PACIENTES ATENDIDOS</div>
+                            <div class="fs-2 fw-bold text-info" id="statsTotalAtenciones">0</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-12">
+                        <div class="stats-card-mini">
+                            <div class="text-secondary small fw-bold">ESPECIALISTAS REGISTRADOS</div>
+                            <div class="fs-2 fw-bold text-success" id="statsTotalEspecialistas">0</div>
+                        </div>
+                    </div>
+                </div>
+
+                <h6 class="text-center text-uppercase fw-bold text-warning mb-2"><i class="fas fa-trophy me-2"></i>Top 3 Especialistas Destacados</h6>
+                <div class="podium-container" id="podioEspecialistas">
+                    </div>
+
+                <h6 class="text-secondary mb-3"><i class="fas fa-list-ol me-2"></i>Ranking Completo de Atenciones</h6>
+                <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
+                    <table class="table table-dark table-sm table-striped align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th>N°</th>
+                                <th>Especialista Infantil</th>
+                                <th class="text-center">Atenciones</th>
+                                <th style="width: 45%;">Porcentaje de Impacto</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statsTablaCuerpo">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cerrar Dashboard</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
@@ -364,6 +455,110 @@
             contenedor.style.display = "none";
             boton.innerHTML = '<i class="fas fa-eye text-success"></i> Mostrar Módulo';
         }
+    }
+
+    /* Funciones del Módulo Estadístico por Especialista Infantil */
+    function abrirModalEstadisticas() {
+        if (historialCompleto.length === 0) {
+            Swal.fire("Historial sin datos", "Por favor, realice primero una consulta con el botón 'Filtrar / Buscar' en el Historial para sincronizar los datos estadísticos.", "info");
+            return;
+        }
+        // Heredar rangos del historial si ya fueron definidos
+        document.getElementById('statsDesde').value = document.getElementById('filtroDesde').value;
+        document.getElementById('statsHasta').value = document.getElementById('filtroHasta').value;
+        
+        procesarEstadisticasInternas();
+        const modal = new bootstrap.Modal(document.getElementById('modalEstadisticas'));
+        modal.show();
+    }
+
+    function procesarEstadisticasInternas() {
+        const fDesde = document.getElementById('statsDesde').value;
+        const fHasta = document.getElementById('statsHasta').value;
+
+        // Filtrar localmente sobre los datos cargados del historial
+        const filtrados = historialCompleto.filter(reg => {
+            let cumpleFecha = true;
+            if (fDesde && fHasta) {
+                cumpleFecha = (reg.fechaAtencion >= fDesde && reg.fechaAtencion <= fHasta);
+            }
+            return cumpleFecha && reg.espInfantil;
+        });
+
+        // Contar ocurrencias por especialista infantil
+        const mapeoConteo = {};
+        filtrados.forEach(reg => {
+            const nombreEsp = reg.espInfantil.trim().toUpperCase();
+            if(nombreEsp) {
+                mapeoConteo[nombreEsp] = (mapeoConteo[nombreEsp] || 0) + 1;
+            }
+        });
+
+        // Convertir y ordenar descendentemente
+        const rankingOrdenado = Object.keys(mapeoConteo).map(key => {
+            return { nombre: key, cantidad: mapeoConteo[key] };
+        }).sort((a, b) => b.cantidad - a.cantidad);
+
+        document.getElementById('statsTotalAtenciones').innerText = filtrados.length;
+        document.getElementById('statsTotalEspecialistas').innerText = rankingOrdenado.length;
+
+        const podioContainer = document.getElementById('podioEspecialistas');
+        const tbodyRanking = document.getElementById('statsTablaCuerpo');
+        podioContainer.innerHTML = "";
+        tbodyRanking.innerHTML = "";
+
+        if(rankingOrdenado.length === 0) {
+            podioContainer.innerHTML = '<div class="text-center text-muted py-3 w-100">No hay atenciones vinculadas a especialistas en este rango de fechas.</div>';
+            tbodyRanking.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Sin datos disponibles</td></tr>';
+            return;
+        }
+
+        // Definir elementos de los tres primeros puestos
+        const p1 = rankingOrdenado[0] || { nombre: "---", cantidad: 0 };
+        const p2 = rankingOrdenado[1] || { nombre: "---", cantidad: 0 };
+        const p3 = rankingOrdenado[2] || { nombre: "---", cantidad: 0 };
+
+        // Construir Podio dinámico con Copas
+        podioContainer.innerHTML = `
+            <div class="podium-place podium-2">
+                <i class="fas fa-trophy trophy-icon"></i>
+                <div class="podium-name" title="${p2.nombre}">${p2.nombre}</div>
+                <span class="podium-count">${p2.cantidad}</span>
+                <span class="badge bg-secondary font-monospace">2do Lugar</span>
+            </div>
+            <div class="podium-place podium-1">
+                <i class="fas fa-crown text-warning position-absolute top-0 start-50 translate-middle" style="font-size:1.6rem; filter:drop-shadow(0 2px 4px rgba(0,0,0,0.5));"></i>
+                <i class="fas fa-trophy trophy-icon"></i>
+                <div class="podium-name" title="${p1.nombre}">${p1.nombre}</div>
+                <span class="podium-count">${p1.cantidad}</span>
+                <span class="badge bg-warning text-dark font-monospace">1er Lugar</span>
+            </div>
+            <div class="podium-place podium-3">
+                <i class="fas fa-trophy trophy-icon"></i>
+                <div class="podium-name" title="${p3.nombre}">${p3.nombre}</div>
+                <span class="podium-count">${p3.cantidad}</span>
+                <span class="badge font-monospace" style="background-color: #b45309;">3er Lugar</span>
+            </div>
+        `;
+
+        // Llenar tabla de ranking general
+        rankingOrdenado.forEach((esp, idx) => {
+            const porcentaje = filtrados.length > 0 ? ((esp.cantidad / filtrados.length) * 100).toFixed(1) : 0;
+            tbodyRanking.innerHTML += `
+                <tr>
+                    <td><span class="badge bg-dark">${idx + 1}</span></td>
+                    <td class="font-monospace small fw-bold text-info">${esp.nombre}</td>
+                    <td class="text-center fw-bold">${esp.cantidad}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="progress w-100 bg-secondary bg-opacity-25" style="height: 10px; border-radius:5px;">
+                                <div class="progress-bar bg-gradient bg-info" style="width: ${porcentaje}%"></div>
+                            </div>
+                            <span class="small font-monospace fw-bold" style="min-width: 45px; text-align:right;">${porcentaje}%</span>
+                        </div>
+                    </td>
+                </tr>`;
+        });
     }
 
     function consultarHistorialServidor() {
@@ -561,7 +756,7 @@
                     if (fechaMes1 > h) coincideFecha = false;
                 }
             } else if (fDesde || fHasta) {
-                coindeFecha = false;
+                coincideFecha = false;
             }
 
             return coincideTexto && coincideFecha;
