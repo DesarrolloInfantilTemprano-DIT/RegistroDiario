@@ -329,7 +329,7 @@
 
 <script>
     const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
-    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbwOZUj0b-LqugL-B9hap_zdSY-8rRcK1uob1qcWDkQJvo9n9Lhz-IysNAWIf-yj5Cvi/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbwGxGqxtuxze4CSe_1ruoJErbAtt3psr_N6bEkXOpO6tMdEPDGPL1e4VIC_5XbMWnQR/exec";
 
     let historialCompleto = [];
     let kardexOriginal = []; 
@@ -366,7 +366,6 @@
         }
     }
 
-    // CORRECCIÓN REALIZADA: Se añaden los parámetros dinámicos a la consulta fetch para que la búsqueda por DNI/Filtros procese correctamente
     function consultarHistorialServidor() {
         const fDesde = document.getElementById('filtroDesde').value;
         const fHasta = document.getElementById('filtroHasta').value;
@@ -380,7 +379,6 @@
 
         tbody.innerHTML = '<tr><td colspan="8" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Consultando el historial en el servidor...</td></tr>';
 
-        // Pasamos los filtros como parámetros query string para que el backend actúe de manera precisa
         let urlFinal = `${URL_REGISTRO}?getHistorial=true&palabraClave=${encodeURIComponent(palabraClave)}&desde=${fDesde}&hasta=${fHasta}`;
 
         fetch(urlFinal)
@@ -390,7 +388,7 @@
                 aplicarFiltrosLocalesHistorial();
             })
             .catch(() => { 
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error al obtener el historial desde el servidor o procesar la palabra clave</td></tr>'; 
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No se encontraron registros que coincidan con los filtros aplicados</td></tr>'; 
             });
     }
 
@@ -508,7 +506,6 @@
             if (condFiltro === "INASISTENTES" && !esInasistente) return;
             if (condFiltro === "AL_DIA" && esInasistente) return;
 
-            // Guardamos en la lista filtrada de control para exportación limpia
             datosKardexFiltradosActuales.push(n);
 
             let claseFila = esInasistente ? 'class="table-danger border-danger"' : '';
@@ -589,13 +586,11 @@
         }
     }
 
-    // NUEVAS FUNCIONES: EXPORTACIÓN EN FORMATO NATIVO EXCEL (.XLSX)
     function exportarExcelKardex() {
         if (datosKardexFiltradosActuales.length === 0) {
             return Swal.fire("Sin datos", "No hay registros cargados en el Kardex para exportar.", "warning");
         }
 
-        // Mapeamos los datos limpios para estructurar las columnas de salida
         const datosFormateados = datosKardexFiltradosActuales.map(p => ({
             "Nombres y Apellidos": p.nombre + (p.esInasistente ? " (Inasistente)" : ""),
             "DNI": p.dni,
@@ -617,22 +612,59 @@
     }
 
     function exportarExcelHistorial() {
-        // Obtenemos las filas directamente renderizadas en el DOM de historial
-        const tabla = document.getElementById("tablaHistorialExcel");
-        const filas = tabla.querySelectorAll("tbody tr");
-
-        if (filas.length === 0 || filas[0].cells.length === 1) {
+        if (historialCompleto.length === 0) {
             return Swal.fire("Sin datos", "Realice una búsqueda con resultados válidos antes de exportar.", "warning");
         }
 
-        const wb = XLSX.utils.book_new();
-        // Exportación de la tabla HTML ignorando la última columna de acción (botón editar)
-        const ws = XLSX.utils.table_to_sheet(tabla, { display: true });
-        
-        // Limpiamos la columna H de acciones para el reporte de salida elegante
-        if(ws['!cols']) ws['!cols'][7] = { hidden: true }; 
+        const fDesde = document.getElementById('filtroDesde').value;
+        const fHasta = document.getElementById('filtroHasta').value;
+        const fMes = document.getElementById('filtroMes').value;
+        const busqueda = document.getElementById('busquedaHistorial').value.toLowerCase().trim();
 
-        XLSX.utils.book_append_sheet(wb, ws, "Historial Filtrado");
+        const filtrados = historialCompleto.filter(reg => {
+            let cumpleFecha = true, cumpleMes = true, cumpleBusqueda = true;
+            if (fDesde && fHasta) cumpleFecha = (reg.fechaAtencion >= fDesde && reg.fechaAtencion <= fHasta);
+            if (fMes) cumpleMes = (reg.mesHierro == fMes);
+            if (busqueda) cumpleBusqueda = (reg.dni.includes(busqueda) || reg.nombreCompleto.toLowerCase().includes(busqueda));
+            return cumpleFecha && cumpleMes && cumpleBusqueda;
+        });
+
+        if (filtrados.length === 0) {
+            return Swal.fire("Sin datos", "No hay registros en el historial bajo los filtros actuales para exportar.", "warning");
+        }
+
+        const datosFormateados = filtrados.map(reg => ({
+            "Fecha Atención": reg.fechaAtencion,
+            "Nombres y Apellidos": reg.nombreCompleto,
+            "DNI": reg.dni,
+            "F. Nacimiento": reg.fn,
+            "Sexo": reg.sexo,
+            "Edad": reg.edad,
+            "H.C.": reg.hc,
+            "Ficha Familiar": reg.ficha || "---",
+            "Teléfono": reg.telefono,
+            "Sector": reg.sector,
+            "N° CRED": reg.cred,
+            "Peso": reg.peso,
+            "Talla": reg.talla,
+            "IMC": reg.imc,
+            "Hb": reg.hb,
+            "Supl. Hierro": reg.suplHierro,
+            "Unid. Hierro": reg.unidadesHierro,
+            "Motivo Hierro": reg.motivoHierro,
+            "N° Mes Hierro": reg.mesHierro,
+            "Antiparasitario": reg.antiparasitario,
+            "Unid. Antip.": reg.unidadesAntip,
+            "N° Vitamina A": reg.vitaminaA,
+            "Vacunado": reg.vacunado,
+            "Fecha Cita": reg.fechaCita,
+            "Esp. Infantil": reg.espInfantil,
+            "Asist. Especialidad": reg.asistEspecialidad || "---"
+        }));
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(datosFormateados);
+        XLSX.utils.book_append_sheet(wb, ws, "Historial Completo");
         XLSX.writeFile(wb, "Historial_Atenciones_DIT.xlsx");
     }
 
