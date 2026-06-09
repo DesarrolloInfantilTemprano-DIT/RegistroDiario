@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registro de Atención Infantil</title>
+    <title>Registro de Atención Infantil - SIGIS_FED</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -38,7 +38,6 @@
     <div class="row justify-content-center">
         <div class="col-12">
             
-            <!-- FORMULARIO PRINCIPAL -->
             <div class="card p-4 mb-4">
                 <h3 class="text-center mb-4"><i class="fas fa-clipboard-list me-2"></i>Registro de Atención DIT </h3>
                 
@@ -192,11 +191,11 @@
                 </form>
             </div>
 
-            <!-- MODULO KARDEX -->
             <div class="card p-4 mb-4">
                 <div class="section-title d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <span><i class="fas fa-arrows-alt-h me-2"></i>Seguimiento al Tratamiento de Anemia</span>
-                    <div class="d-flex gap-2">
+                    <span><i class="fas fa-arrows-alt-h me-2"></i>Seguimiento al Tratamiento de Anemia (Kardex)</span>
+                    <div class="d-flex gap-2 text-end">
+                        <button class="btn btn-sm btn-success text-white" onclick="exportarExcelKardex()"><i class="fas fa-file-excel me-1"></i> Exportar Excel</button>
                         <button class="btn btn-sm btn-outline-secondary" type="button" id="btnToggleKardex" onclick="toggleModuloKardex()">
                             <i class="fas fa-eye-slash text-danger"></i> Ocultar Módulo
                         </button>
@@ -234,7 +233,7 @@
                     </div>
 
                     <div class="table-responsive">
-                        <table class="table table-bordered table-sm table-kardex table-hover mb-0">
+                        <table id="tablaKardexExcel" class="table table-bordered table-sm table-kardex table-hover mb-0">
                             <thead>
                                 <tr>
                                     <th>Nombres y Apellidos</th>
@@ -258,13 +257,15 @@
                 </div>
             </div>
 
-            <!-- MODULO BUSQUEDA AVANZADA EN HISTORIAL (ACTUALIZADO SEGÚN SOLICITUD) -->
             <div class="card p-4">
                 <div class="section-title d-flex justify-content-between align-items-center flex-wrap gap-2">
                     <span><i class="fas fa-search-plus me-2"></i>Búsqueda Avanzada en Historial</span>
-                    <button class="btn btn-sm btn-outline-secondary" type="button" id="btnToggleHistorial" onclick="toggleModuloHistorial()">
-                        <i class="fas fa-eye-slash text-danger"></i> Ocultar Historial
-                    </button>
+                    <div class="d-flex gap-2 text-end">
+                        <button class="btn btn-sm btn-success text-white" onclick="exportarExcelHistorial()"><i class="fas fa-file-excel me-1"></i> Exportar Excel</button>
+                        <button class="btn btn-sm btn-outline-secondary" type="button" id="btnToggleHistorial" onclick="toggleModuloHistorial()">
+                            <i class="fas fa-eye-slash text-danger"></i> Ocultar Historial
+                        </button>
+                    </div>
                 </div>
                 
                 <div id="cuerpoContenedorHistorial">
@@ -298,7 +299,7 @@
                     </div>
 
                     <div class="table-responsive table-container">
-                        <table class="table table-hover table-striped mb-0" style="min-width: 1000px;">
+                        <table id="tablaHistorialExcel" class="table table-hover table-striped mb-0" style="min-width: 1000px;">
                             <thead class="table-dark">
                                 <tr>
                                     <th>Fecha</th>
@@ -324,12 +325,15 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
 <script>
     const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
-    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbwAZkeHOL_nWaPoBqxTL_8cLhAzU7nd1YWg3nSjncXXCQ2ofvpnA6yaCsfMmGbtsvs/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbwOZUj0b-LqugL-B9hap_zdSY-8rRcK1uob1qcWDkQJvo9n9Lhz-IysNAWIf-yj5Cvi/exec";
 
     let historialCompleto = [];
     let kardexOriginal = []; 
+    let datosKardexFiltradosActuales = [];
 
     window.onload = function() {
         const hoy = new Date().toISOString().split('T')[0];
@@ -338,7 +342,6 @@
         cargarListasExcel();
     };
 
-    // --- ACCIÓN PARA OCULTAR O MOSTRAR EL MÓDULO HISTORIAL ---
     function toggleModuloHistorial() {
         const contenedor = document.getElementById('cuerpoContenedorHistorial');
         const boton = document.getElementById('btnToggleHistorial');
@@ -363,14 +366,13 @@
         }
     }
 
-    // --- CONSULTA BAJO DEMANDA EXPLICITA PARA EL HISTORIAL ---
+    // CORRECCIÓN REALIZADA: Se añaden los parámetros dinámicos a la consulta fetch para que la búsqueda por DNI/Filtros procese correctamente
     function consultarHistorialServidor() {
         const fDesde = document.getElementById('filtroDesde').value;
         const fHasta = document.getElementById('filtroHasta').value;
         const palabraClave = document.getElementById('busquedaHistorial').value.trim();
         const tbody = document.getElementById('tablaCuerpo');
 
-        // Validar que se ingrese al menos un criterio de búsqueda obligatorio
         if (!palabraClave && (!fDesde || !fHasta)) {
             Swal.fire("Criterios requeridos", "Por favor ingrese un rango de fechas completo o una Palabra Clave (DNI/Nombre) para realizar la consulta.", "warning");
             return;
@@ -378,7 +380,8 @@
 
         tbody.innerHTML = '<tr><td colspan="8" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Consultando el historial en el servidor...</td></tr>';
 
-        let urlFinal = `${URL_REGISTRO}?getHistorial=true`;
+        // Pasamos los filtros como parámetros query string para que el backend actúe de manera precisa
+        let urlFinal = `${URL_REGISTRO}?getHistorial=true&palabraClave=${encodeURIComponent(palabraClave)}&desde=${fDesde}&hasta=${fHasta}`;
 
         fetch(urlFinal)
             .then(res => res.json())
@@ -387,11 +390,10 @@
                 aplicarFiltrosLocalesHistorial();
             })
             .catch(() => { 
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error al obtener el historial desde el servidor</td></tr>'; 
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-danger">Error al obtener el historial desde el servidor o procesar la palabra clave</td></tr>'; 
             });
     }
 
-    // --- PROCESAR LOS FILTROS LOCALES SOBRE LOS DATOS OBTENIDOS ---
     function aplicarFiltrosLocalesHistorial() {
         const fDesde = document.getElementById('filtroDesde').value;
         const fHasta = document.getElementById('filtroHasta').value;
@@ -409,7 +411,6 @@
         dibujarTablaHistorial(filtrados);
     }
 
-    // --- CONSTRUIR LAS FILAS DEL HISTORIAL CON LAS NUEVAS COLUMNAS SOLICITADAS ---
     function dibujarTablaHistorial(datos) {
         const tbody = document.getElementById('tablaCuerpo');
         tbody.innerHTML = "";
@@ -420,9 +421,7 @@
         }
 
         datos.forEach((reg) => {
-            // Buscamos el index global original para no perder la referencia de edición
             const indexOriginal = historialCompleto.indexOf(reg);
-
             tbody.innerHTML += `
                 <tr>
                     <td>${reg.fechaAtencion}</td>
@@ -447,7 +446,6 @@
         document.getElementById('tablaCuerpo').innerHTML = '<tr><td colspan="8" class="text-center text-muted">Establezca los parámetros de rango de fechas o DNI y haga clic en "Filtrar / Buscar"</td></tr>';
     }
 
-    // --- CARGAR KARDEX HORIZONTAL ---
     function cargarVistaHorizontal() {
         const tbody = document.getElementById('cuerpoHorizontal');
         tbody.innerHTML = '<tr><td colspan="11" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Cargando Kardex...</td></tr>';
@@ -476,10 +474,12 @@
         tbody.innerHTML = "";
         if(datos.length === 0) {
             tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">No se encontraron registros</td></tr>';
+            datosKardexFiltradosActuales = [];
             return;
         }
 
         const hoy = new Date(2026, 5, 3);
+        datosKardexFiltradosActuales = [];
 
         datos.forEach(n => {
             let esInasistente = false;
@@ -507,6 +507,9 @@
             const condFiltro = document.getElementById('filtroInasistentesKardex').value;
             if (condFiltro === "INASISTENTES" && !esInasistente) return;
             if (condFiltro === "AL_DIA" && esInasistente) return;
+
+            // Guardamos en la lista filtrada de control para exportación limpia
+            datosKardexFiltradosActuales.push(n);
 
             let claseFila = esInasistente ? 'class="table-danger border-danger"' : '';
 
@@ -584,6 +587,53 @@
         } else {
             Swal.fire("Nota", "Elemento no cargado localmente. Ejecute la búsqueda en el Historial.", "info");
         }
+    }
+
+    // NUEVAS FUNCIONES: EXPORTACIÓN EN FORMATO NATIVO EXCEL (.XLSX)
+    function exportarExcelKardex() {
+        if (datosKardexFiltradosActuales.length === 0) {
+            return Swal.fire("Sin datos", "No hay registros cargados en el Kardex para exportar.", "warning");
+        }
+
+        // Mapeamos los datos limpios para estructurar las columnas de salida
+        const datosFormateados = datosKardexFiltradosActuales.map(p => ({
+            "Nombres y Apellidos": p.nombre + (p.esInasistente ? " (Inasistente)" : ""),
+            "DNI": p.dni,
+            "Sector": p.sector || "---",
+            "Teléfono": p.telefono || "---",
+            "MES-1": p.meses[0] || "---",
+            "MES-2": p.meses[1] || "---",
+            "MES-3": p.meses[2] || "---",
+            "MES-4": p.meses[3] || "---",
+            "MES-5": p.meses[4] || "---",
+            "MES-6": p.meses[5] || "---",
+            "MES-ALTA": p.meses[6] || "---"
+        }));
+
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(datosFormateados);
+        XLSX.utils.book_append_sheet(wb, ws, "Kardex Anemia");
+        XLSX.writeFile(wb, "Kardex_Seguimiento_Anemia_SIGIS_FED.xlsx");
+    }
+
+    function exportarExcelHistorial() {
+        // Obtenemos las filas directamente renderizadas en el DOM de historial
+        const tabla = document.getElementById("tablaHistorialExcel");
+        const filas = tabla.querySelectorAll("tbody tr");
+
+        if (filas.length === 0 || filas[0].cells.length === 1) {
+            return Swal.fire("Sin datos", "Realice una búsqueda con resultados válidos antes de exportar.", "warning");
+        }
+
+        const wb = XLSX.utils.book_new();
+        // Exportación de la tabla HTML ignorando la última columna de acción (botón editar)
+        const ws = XLSX.utils.table_to_sheet(tabla, { display: true });
+        
+        // Limpiamos la columna H de acciones para el reporte de salida elegante
+        if(ws['!cols']) ws['!cols'][7] = { hidden: true }; 
+
+        XLSX.utils.book_append_sheet(wb, ws, "Historial Filtrado");
+        XLSX.writeFile(wb, "Historial_Atenciones_DIT.xlsx");
     }
 
     function calcularIMC() {
