@@ -400,9 +400,13 @@
 
         const filtrados = historialCompleto.filter(reg => {
             let cumpleFecha = true, cumpleMes = true, cumpleBusqueda = true;
-            if (fDesde && fHasta) cumpleFecha = (reg.fechaAtencion >= fDesde && reg.fechaAtencion <= fHasta);
+            
+            if (fDesde && fHasta) {
+                cumpleFecha = (reg.fechaAtencion >= fDesde && reg.fechaAtencion <= fHasta);
+            }
             if (fMes) cumpleMes = (reg.mesHierro == fMes);
             if (busqueda) cumpleBusqueda = (reg.dni.includes(busqueda) || reg.nombreCompleto.toLowerCase().includes(busqueda));
+            
             return cumpleFecha && cumpleMes && cumpleBusqueda;
         });
 
@@ -487,7 +491,7 @@
             for (let i = 5; i >= 0; i--) {
                 if (n.meses[i]) {
                     let partes = n.meses[i].split("/");
-                    ultimaFechaValida = new Date(partes[2], partes[1] - 1, partes[0]);
+                    ultimaFechaValida = new Date(partes[2], paddingZero(partes[1] - 1), paddingZero(partes[0]));
                     break;
                 }
             }
@@ -531,6 +535,8 @@
             tbody.innerHTML = '<tr><td colspan="11" class="text-center text-muted">Ningún paciente cumple con la condición seleccionada</td></tr>';
         }
     }
+
+    function paddingZero(n) { return n < 10 ? '0' + n : n; }
 
     function filtrarKardexLocal() {
         let textoBusqueda = document.getElementById('buscarKardexPaciente').value.toUpperCase().trim();
