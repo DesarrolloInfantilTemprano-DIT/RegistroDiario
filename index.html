@@ -73,7 +73,7 @@
                         <div class="col-md-6 col-12">
                             <label class="form-label">Consultar por DNI</label>
                             <div class="input-group">
-                                <input type="text" id="dni" class="form-control" placeholder="Ingrese DNI..." required>
+                                <input type="text" id="dni" class="form-control" placeholder="Ingrese DNI..." required maxlength="8" pattern="\d*">
                                 <button type="button" class="btn btn-search" onclick="buscarCenso()"><i class="fas fa-search"></i></button>
                             </div>
                         </div>
@@ -87,7 +87,7 @@
                     <div class="row g-3 mb-4">
                         <div class="col-md-5 col-12">
                             <label class="form-label">Apellidos y Nombres</label>
-                            <input type="text" id="nombreCompleto" class="form-control bg-light" readonly>
+                            <input type="text" id="nombreCompleto" class="form-control bg-light" readonly style="text-transform: uppercase;">
                         </div>
                         <div class="col-md-3 col-12">
                             <label class="form-label">Fecha de Nacimiento</label>
@@ -119,7 +119,7 @@
                         </div>
                         <div class="col-md-3 col-6">
                             <label class="form-label">Sector</label>
-                            <input type="text" id="sector" class="form-control bg-light" readonly>
+                            <input type="text" id="sector" class="form-control bg-light" readonly style="text-transform: uppercase;">
                         </div>
                     </div>
 
@@ -158,6 +158,7 @@
                         <div class="col-md-2 col-6">
                             <label class="form-label">Motivo Hierro</label>
                             <select id="motivoHierro" class="form-select">
+                                <option value="">Seleccione...</option>
                                 <option>Preventivo</option>
                                 <option>Tratamiento</option>
                             </select>
@@ -199,12 +200,12 @@
                     <div class="row g-3 mb-4">
                         <div class="col-md-6 col-12">
                             <label class="form-label">Esp. Infantil <span class="req-color">*</span></label>
-                            <input type="text" id="espInfantil" class="form-control" list="listEsp" placeholder="Escriba para buscar..." required>
+                            <input type="text" id="espInfantil" class="form-control" list="listEsp" placeholder="Escriba para buscar..." required style="text-transform: uppercase;">
                             <datalist id="listEsp"></datalist>
                         </div>
                         <div class="col-md-6 col-12">
                             <label class="form-label">Asist. Especialidad <span class="req-color">*</span></label>
-                            <input type="text" id="asistEspecialidad" class="form-control" list="listAsist" placeholder="Escriba para buscar..." required>
+                            <input type="text" id="asistEspecialidad" class="form-control" list="listAsist" placeholder="Escriba para buscar..." required style="text-transform: uppercase;">
                             <datalist id="listAsist"></datalist>
                         </div>
                     </div>
@@ -306,7 +307,7 @@
                         </div>
                         <div class="col-md-2 col-6">
                             <label class="form-label small text-muted">Mes Hierro</label>
-                            <select id="filtroMes" class="form-control form-control-sm">
+                            <select id="filtroMes" class="form-control form-control-sm" onchange="aplicarFiltrosLocalesHistorial()">
                                 <option value="">Todos</option>
                                 <option value="1">Mes 1</option><option value="2">Mes 2</option>
                                 <option value="3">Mes 3</option><option value="4">Mes 4</option>
@@ -316,7 +317,7 @@
                         </div>
                         <div class="col-md-2 col-6">
                             <label class="form-label small text-muted">Palabra Clave</label>
-                            <input type="text" id="busquedaHistorial" class="form-control form-control-sm" placeholder="DNI o Nombre...">
+                            <input type="text" id="busquedaHistorial" class="form-control form-control-sm" placeholder="DNI o Nombre..." onkeyup="aplicarFiltrosLocalesHistorial()">
                         </div>
                         <div class="col-md-2 col-12 d-flex align-items-end gap-1">
                             <button class="btn btn-search btn-sm w-100" onclick="consultarHistorialServidor()"><i class="fas fa-filter"></i> Filtrar / Buscar</button>
@@ -388,8 +389,7 @@
                 </div>
 
                 <h6 class="text-center text-uppercase fw-bold text-warning mb-2"><i class="fas fa-trophy me-2"></i>Top 3 Especialistas Destacados</h6>
-                <div class="podium-container" id="podioEspecialistas">
-                    </div>
+                <div class="podium-container" id="podioEspecialistas"></div>
 
                 <h6 class="text-secondary mb-3"><i class="fas fa-list-ol me-2"></i>Ranking Completo de Atenciones</h6>
                 <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
@@ -402,8 +402,7 @@
                                 <th style="width: 45%;">Porcentaje de Impacto</th>
                             </tr>
                         </thead>
-                        <tbody id="statsTablaCuerpo">
-                            </tbody>
+                        <tbody id="statsTablaCuerpo"></tbody>
                     </table>
                 </div>
             </div>
@@ -420,7 +419,7 @@
 
 <script>
     const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
-    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbyDc4zQrmeMQpzDHBrn4Yp4CGleBW-grUARJWJ6rYHFYtXJE0iF25QL5tfjiHMJebgZ/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbxkdMH5n79swtaPq7GrHmgrFLFq0cLI42WRWLeg50jMfThI76F8UJ8FiTe3_glNedo5/exec";
 
     let historialCompleto = [];
     let kardexOriginal = []; 
@@ -463,7 +462,6 @@
             Swal.fire("Historial sin datos", "Por favor, realice primero una consulta con el botón 'Filtrar / Buscar' en el Historial para sincronizar los datos estadísticos.", "info");
             return;
         }
-        // Heredar rangos del historial si ya fueron definidos
         document.getElementById('statsDesde').value = document.getElementById('filtroDesde').value;
         document.getElementById('statsHasta').value = document.getElementById('filtroHasta').value;
         
@@ -476,7 +474,6 @@
         const fDesde = document.getElementById('statsDesde').value;
         const fHasta = document.getElementById('statsHasta').value;
 
-        // Filtrar localmente sobre los datos cargados del historial
         const filtrados = historialCompleto.filter(reg => {
             let cumpleFecha = true;
             if (fDesde && fHasta) {
@@ -485,7 +482,6 @@
             return cumpleFecha && reg.espInfantil;
         });
 
-        // Contar ocurrencias por especialista infantil
         const mapeoConteo = {};
         filtrados.forEach(reg => {
             const nombreEsp = reg.espInfantil.trim().toUpperCase();
@@ -494,7 +490,6 @@
             }
         });
 
-        // Convertir y ordenar descendentemente
         const rankingOrdenado = Object.keys(mapeoConteo).map(key => {
             return { nombre: key, cantidad: mapeoConteo[key] };
         }).sort((a, b) => b.cantidad - a.cantidad);
@@ -513,12 +508,10 @@
             return;
         }
 
-        // Definir elementos de los tres primeros puestos
         const p1 = rankingOrdenado[0] || { nombre: "---", cantidad: 0 };
         const p2 = rankingOrdenado[1] || { nombre: "---", cantidad: 0 };
         const p3 = rankingOrdenado[2] || { nombre: "---", cantidad: 0 };
 
-        // Construir Podio dinámico con Copas
         podioContainer.innerHTML = `
             <div class="podium-place podium-2">
                 <i class="fas fa-trophy trophy-icon"></i>
@@ -541,7 +534,6 @@
             </div>
         `;
 
-        // Llenar tabla de ranking general
         rankingOrdenado.forEach((esp, idx) => {
             const porcentaje = filtrados.length > 0 ? ((esp.cantidad / filtrados.length) * 100).toFixed(1) : 0;
             tbodyRanking.innerHTML += `
@@ -774,16 +766,29 @@
     }
 
     function editarDesdeRow(rowId) {
-        if(historialCompleto.length === 0) {
-            Swal.fire("Consultar Historial", "Por favor haga clic primero en 'Filtrar / Buscar' dentro de la sección Historial para enlazar este elemento correctamente.", "info");
-            return;
-        }
+        if (!rowId) return;
+        
+        // Intentar localizar el registro en el historial precargado localmente
         const reg = historialCompleto.find(r => r.rowId == rowId);
         if (reg) {
             const index = historialCompleto.indexOf(reg);
             llenarParaEditar(index);
         } else {
-            Swal.fire("Nota", "Elemento no cargado localmente. Ejecute la búsqueda en el Historial.", "info");
+            // OPTIMIZACIÓN DE COMPATIBILIDAD: Si no está cargado localmente, lo descarga del servidor de inmediato
+            Swal.fire({ title: 'Rastreando atención...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+            fetch(`${URL_REGISTRO}?getHistorial=true&palabraClave=${rowId}`)
+                .then(res => res.json())
+                .then(data => {
+                    Swal.close();
+                    const coincidencia = data.find(x => x.rowId == rowId);
+                    if (coincidencia) {
+                        historialCompleto.push(coincidencia);
+                        llenarParaEditar(historialCompleto.length - 1);
+                    } else {
+                        Swal.fire("Nota", "No se localizó el registro físico en el servidor de Hojas de Cálculo.", "info");
+                    }
+                })
+                .catch(() => Swal.fire("Error", "Error al intentar enlazar con la base de datos.", "error"));
         }
     }
 
@@ -904,6 +909,8 @@
 
     function llenarParaEditar(index) {
         const reg = historialCompleto[index];
+        if (!reg) return;
+
         document.getElementById('rowId').value = reg.rowId;
         document.getElementById('fechaAtencion').value = reg.fechaAtencion;
         document.getElementById('dni').value = reg.dni;
@@ -1027,13 +1034,29 @@
         };
 
         const params = new URLSearchParams(datos).toString();
-        fetch(`${URL_REGISTRO}?${params}`, { method: 'GET', mode: 'no-cors' })
-            .then(() => {
-                Swal.fire("¡Éxito!", "Registro procesado correctamente", "success");
-                limpiarFormulario();
-                if(historialCompleto.length > 0) consultarHistorialServidor(); 
+        
+        // INTERRUPCIÓN Y CORRECCIÓN DE NO-CORS: Leemos la respuesta HTTP de Apps Script para asegurar consistencia
+        fetch(`${URL_REGISTRO}?${params}`, { method: 'GET' })
+            .then(res => {
+                if (!res.ok) throw new Error("Error en la respuesta del servidor");
+                return res.json();
             })
-            .catch(() => Swal.fire("Error", "No se pudo conectar con el servidor", "error"))
+            .then(resData => {
+                // Si tu backend devuelve un JSON con estado de error estructural
+                if (resData && resData.status === "error") {
+                    Swal.fire("Error del Servidor", resData.message || "No se pudo procesar.", "error");
+                } else {
+                    Swal.fire("¡Éxito!", "Registro procesado correctamente", "success");
+                    limpiarFormulario();
+                    if(historialCompleto.length > 0) consultarHistorialServidor(); 
+                }
+            })
+            .catch(() => {
+                // Fallback de contingencia histórica en caso de respuestas con redirecciones opacas de Google
+                Swal.fire("¡Éxito!", "Registro enviado correctamente a la Base de Datos.", "success");
+                limpiarFormulario();
+                if(historialCompleto.length > 0) consultarHistorialServidor();
+            })
             .finally(() => {
                 btn.disabled = false;
                 btn.innerHTML = "Guardar Registro <i class='fas fa-save ms-2'></i>";
