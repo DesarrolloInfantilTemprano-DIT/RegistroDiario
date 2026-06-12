@@ -24,19 +24,19 @@
         }
         
         body::before {
-            content: "";
+            content: "\f1b0";
             position: fixed;
             top: 20px; right: 30px;
             font-family: "Font Awesome 6 Free"; font-weight: 900;
-            content: "\f1b0"; color: rgba(75, 163, 227, 0.08); font-size: 5rem;
+            color: rgba(75, 163, 227, 0.06); font-size: 5rem;
             z-index: -1;
         }
         body::after {
-            content: "";
+            content: "\f1fd";
             position: fixed;
             bottom: 40px; left: 30px;
             font-family: "Font Awesome 6 Free"; font-weight: 900;
-            content: "\f1fd"; color: rgba(87, 204, 153, 0.08); font-size: 5rem;
+            color: rgba(87, 204, 153, 0.06); font-size: 5rem;
             z-index: -1;
         }
 
@@ -44,15 +44,38 @@
             border: none; 
             border-top: 6px solid var(--primary-color); 
             border-radius: var(--card-radius); 
-            box-shadow: 0 8px 24px rgba(149, 157, 165, 0.15);
+            box-shadow: 0 10px 30px rgba(149, 157, 165, 0.1);
             background-color: #ffffff;
-            transition: transform 0.2s;
+            transition: all 0.3s ease;
+            position: relative;
         }
         
         .main-title {
             font-weight: 700;
             color: var(--primary-color);
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.03);
+        }
+
+        /* Estilos Reloj Infantil */
+        .reloj-infantil {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            background: linear-gradient(135deg, #e6f2ff, #d0e8ff);
+            border: 1.5px dashed var(--primary-color);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary-hover);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 10px rgba(75, 163, 227, 0.15);
+        }
+        .reloj-infantil i {
+            font-size: 0.95rem;
+            animation: bounceClock 2s infinite ease-in-out;
         }
 
         .section-title { 
@@ -82,11 +105,11 @@
             padding: 10px 12px;
             font-family: 'Segoe UI', sans-serif;
             font-size: 0.95rem;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
         }
         .form-control:focus, .form-select:focus {
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(75, 163, 227, 0.2);
+            box-shadow: 0 0 0 3px rgba(75, 163, 227, 0.15);
         }
 
         .form-label { font-weight: 600; font-size: 0.9rem; color: #4a5568; margin-bottom: 6px; }
@@ -117,7 +140,8 @@
         .podium-name { font-size: 0.85rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; color: #f9fafb; }
         .podium-count { font-size: 1.5rem; font-weight: 800; display: block; margin-top: 4px; }
         
-        .btn-lg { border-radius: 12px; font-weight: 600; padding: 12px 24px; font-size: 1rem; }
+        .btn-lg { border-radius: 12px; font-weight: 600; padding: 12px 24px; font-size: 1rem; transition: all 0.2s ease; }
+        .btn-lg:hover { transform: translateY(-1px); }
         .btn-primary { background-color: var(--primary-color); border: none; }
         .btn-primary:hover { background-color: var(--primary-hover); }
         .btn-secondary { background-color: #a0aec0; border: none; }
@@ -128,6 +152,14 @@
         @keyframes floatTrophy {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-6px); }
+        }
+        @keyframes bounceClock {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); color: var(--secondary-color); }
+        }
+
+        @media (max-width: 768px) {
+            .reloj-infantil { position: relative; top: 0; right: 0; margin: 0 auto 15px auto; width: fit-content; }
         }
 
         @media (max-width: 576px) {
@@ -147,6 +179,10 @@
         <div class="col-12">
             
             <div class="card p-4 mb-4">
+                <div class="reloj-infantil" id="relojContenedor">
+                    <i class="fas fa-clock"></i> <span id="relojHora">00:00:00</span>
+                </div>
+
                 <h3 class="text-center mb-4 main-title"><i class="fas fa-child me-2 text-warning"></i>Registro de Atención DIT</h3>
                 
                 <form id="registroForm">
@@ -513,7 +549,19 @@
         document.getElementById('fechaAtencion').value = hoy;
         actualizarFechas(); 
         cargarListasExcel();
+        
+        // Inicializar Reloj
+        actualizarRelojInfantil();
+        setInterval(actualizarRelojInfantil, 1000);
     };
+
+    function actualizarRelojInfantil() {
+        const ahora = new Date();
+        let hrs = paddingZero(ahora.getHours());
+        let mins = paddingZero(ahora.getMinutes());
+        let secs = paddingZero(ahora.getSeconds());
+        document.getElementById('relojHora').innerText = `${hrs}:${mins}:${secs}`;
+    }
 
     function toggleModuloHistorial() {
         const contenedor = document.getElementById('cuerpoContenedorHistorial');
@@ -539,58 +587,30 @@
         }
     }
 
-    /* CORREGIDO: Formateador quirúrgico que fuerza estrictamente el formato DD/MM/YYYY e ignora errores nativos de fecha */
+    /* SISTEMA DE CONVERSIÓN CRUDA CONTRA INVERSIÓN DE FECHAS AMBIGUAS */
     function formatearFechaLocal(fechaSucia) {
         if (!fechaSucia) return "---";
         let texto = String(fechaSucia).trim();
         if (texto === "" || texto === "---") return "---";
 
-        // Si viene con formato de hora integrada (ej: "2026-05-15T05:00:00.000Z" o similar)
-        if (texto.includes('T')) {
-            texto = texto.split('T')[0];
-        } else if (texto.includes(' ')) {
-            texto = texto.split(' ')[0];
+        if (texto.includes('T')) texto = texto.split('T')[0];
+        if (texto.includes(' ')) texto = texto.split(' ')[0];
+
+        let matchLatinoDiagonal = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (matchLatinoDiagonal) {
+            return `${paddingZero(parseInt(matchLatinoDiagonal[1]))}/${paddingZero(parseInt(matchLatinoDiagonal[2]))}/${matchLatinoDiagonal[3]}`;
         }
 
-        let anio = "", mes = "", dia = "";
-
-        if (texto.includes('-')) {
-            let partes = texto.split('-');
-            if (partes[0].length === 4) { // YYYY-MM-DD
-                anio = partes[0]; mes = partes[1]; dia = partes[2];
-            } else if (partes[2].length === 4) { // DD-MM-YYYY o MM-DD-YYYY
-                // Evaluamos si el primer elemento puede ser el mes o dia
-                if (parseInt(partes[0]) > 12) {
-                    dia = partes[0]; mes = partes[1]; anio = partes[2];
-                } else {
-                    // Por precaución asumimos DD-MM-YYYY estándar si viene de bases locales limpias
-                    dia = partes[0]; mes = partes[1]; anio = partes[2];
-                }
-            }
-        } else if (texto.includes('/')) {
-            let partes = texto.split('/');
-            if (partes[2].length === 4) { // DD/MM/YYYY o MM/DD/YYYY
-                // Si el del medio es mayor a 12, es definitivamente MM/DD/YYYY americano
-                if (parseInt(partes[1]) > 12) {
-                    dia = partes[1]; mes = partes[0]; anio = partes[2];
-                } else if (parseInt(partes[0]) > 12) { // DD/MM/YYYY claro
-                    dia = partes[0]; mes = partes[1]; anio = partes[2];
-                } else {
-                    // Si ambos son menores a 12 pero el backend mandó formato americano detectado por análisis visual:
-                    // Por seguridad en javascript, si el archivo de censo o registro asienta MM/DD/YYYY:
-                    dia = partes[1]; mes = partes[0]; anio = partes[2];
-                }
-            } else if (partes[0].length === 4) { // YYYY/MM/DD
-                anio = partes[0]; mes = partes[1]; dia = partes[2];
-            }
+        let matchISO = texto.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+        if (matchISO) {
+            return `${paddingZero(parseInt(matchISO[3]))}/${paddingZero(parseInt(matchISO[2]))}/${matchISO[1]}`;
         }
 
-        // Si logramos capturar los componentes de forma segura rearmamos la cadena limpia
-        if (dia && mes && anio) {
-            return `${paddingZero(parseInt(dia))}/${paddingZero(parseInt(mes))}/${anio}`;
+        let matchLatinoGuion = texto.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+        if (matchLatinoGuion) {
+            return `${paddingZero(parseInt(matchLatinoGuion[1]))}/${paddingZero(parseInt(matchLatinoGuion[2]))}/${matchLatinoGuion[3]}`;
         }
 
-        // Respaldo nativo controlado si fallan las reglas de arriba
         try {
             let fechaObj = new Date(fechaSucia);
             if (!isNaN(fechaObj.getTime())) {
@@ -601,7 +621,32 @@
             }
         } catch (e) {}
 
-        return fechaSucia; // Retorno de última instancia
+        return fechaSucia;
+    }
+
+    function convertirAFechaInputHTML(fechaSucia) {
+        if (!fechaSucia) return "";
+        let texto = String(fechaSucia).trim();
+        
+        if (texto.includes('T')) texto = texto.split('T')[0];
+        if (texto.includes(' ')) texto = texto.split(' ')[0];
+
+        let matchLatino = texto.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+        if (matchLatino) {
+            return `${matchLatino[3]}-${paddingZero(parseInt(matchLatino[2]))}-${paddingZero(parseInt(matchLatino[1]))}`;
+        }
+        
+        let matchLatinoGuion = texto.match(/^(\d{1,2})-(\d{1,2})-(\d{4})$/);
+        if (matchLatinoGuion) {
+            return `${matchLatinoGuion[3]}-${paddingZero(parseInt(matchLatinoGuion[2]))}-${paddingZero(parseInt(matchLatinoGuion[1]))}`;
+        }
+
+        let matchISO = texto.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+        if (matchISO) {
+            return `${matchISO[1]}-${paddingZero(parseInt(matchISO[2]))}-${paddingZero(parseInt(matchISO[3]))}`;
+        }
+
+        return texto;
     }
 
     function abrirModalEstadisticas() {
@@ -700,7 +745,6 @@
         });
     }
 
-    /* CORREGIDO: Solución al envío de parámetros vacíos al backend cuando no hay rango de fechas seleccionado */
     function consultarHistorialServidor() {
         const fDesde = document.getElementById('filtroDesde').value;
         const fHasta = document.getElementById('filtroHasta').value;
@@ -714,13 +758,8 @@
 
         tbody.innerHTML = '<tr><td colspan="8" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Consultando el historial en el servidor...</td></tr>';
 
-        // Construcción limpia de la URL de consulta
         let urlFinal = `${URL_REGISTRO}?getHistorial=true&palabraClave=${encodeURIComponent(palabraClave)}`;
-        
-        // Solo agregamos las fechas si el usuario explícitamente las definió para no romper la respuesta del servidor
-        if (fDesde && fHasta) {
-            urlFinal += `&desde=${fDesde}&hasta=${fHasta}`;
-        }
+        if (fDesde && fHasta) urlFinal += `&desde=${fDesde}&hasta=${fHasta}`;
 
         fetch(urlFinal)
             .then(res => res.json())
@@ -740,13 +779,9 @@
         const busqueda = document.getElementById('busquedaHistorial').value.toLowerCase().trim();
 
         const filtrados = historialCompleto.filter(reg => {
-            let cumpleFecha = true;
-            let cumpleMes = true;
-            let cumpleBusqueda = true;
+            let cumpleFecha = true, cumpleMes = true, cumpleBusqueda = true;
             
-            if (fDesde && fHasta) {
-                cumpleFecha = (reg.fechaAtencion >= fDesde && reg.fechaAtencion <= fHasta);
-            }
+            if (fDesde && fHasta) cumpleFecha = (reg.fechaAtencion >= fDesde && reg.fechaAtencion <= fHasta);
             if (fMes) cumpleMes = (reg.mesHierro == fMes);
             if (busqueda) cumpleBusqueda = (reg.dni.includes(busqueda) || reg.nombreCompleto.toLowerCase().includes(busqueda));
             
@@ -835,12 +870,8 @@
 
             for (let i = 5; i >= 0; i--) {
                 if (n.meses[i]) {
-                    let partes = n.meses[i].split("/");
-                    if (partes.length === 3) {
-                        ultimaFechaValida = new Date(partes[2], paddingZero(partes[1] - 1), paddingZero(partes[0]));
-                    } else {
-                        ultimaFechaValida = new Date(n.meses[i]);
-                    }
+                    let dateStr = convertirAFechaInputHTML(n.meses[i]);
+                    if (dateStr) ultimaFechaValida = new Date(dateStr + "T00:00:00");
                     break;
                 }
             }
@@ -848,9 +879,7 @@
             if (ultimaFechaValida && !tieneAlta) {
                 let diferenciaTiempo = hoy.getTime() - ultimaFechaValida.getTime();
                 let diferenciaDias = Math.floor(diferenciaTiempo / (1000 * 60 * 60 * 24));
-                if (diferenciaDias > 30) {
-                    esInasistente = true;
-                }
+                if (diferenciaDias > 30) esInasistente = true;
             }
 
             n.esInasistente = esInasistente;
@@ -899,21 +928,19 @@
             
             let coincideFecha = true;
             if (paciente.meses[0]) {
-                let partes = paciente.meses[0].split("/");
-                let fechaMes1;
-                if(partes.length === 3) {
-                    fechaMes1 = new Date(partes[2], partes[1] - 1, partes[0]);
-                } else {
-                    fechaMes1 = new Date(paciente.meses[0]);
-                }
-                
-                if (fDesde) {
-                    let d = new Date(fDesde + "T00:00:00");
-                    if (fechaMes1 < d) coincideFecha = false;
-                }
-                if (fHasta) {
-                    let h = new Date(fHasta + "T00:00:00");
-                    if (fechaMes1 > h) coincideFecha = false;
+                let dateStr = convertirAFechaInputHTML(paciente.meses[0]);
+                if (dateStr) {
+                    let fechaMes1 = new Date(dateStr + "T00:00:00");
+                    if (fDesde) {
+                        let d = new Date(fDesde + "T00:00:00");
+                        if (fechaMes1 < d) coincideFecha = false;
+                    }
+                    if (fHasta) {
+                        let h = new Date(fHasta + "T00:00:00");
+                        if (fechaMes1 > h) coincideFecha = false;
+                    }
+                } else if (fDesde || fHasta) {
+                    coincideFecha = false;
                 }
             } else if (fDesde || fHasta) {
                 coincideFecha = false;
@@ -933,7 +960,6 @@
         dibujarKardex(kardexOriginal);
     }
 
-    /* CORREGIDO: El fetch ahora envía correctamente el rowId para jalar los datos específicos desde la hoja de cálculo de atenciones */
     function editarDesdeRow(rowId) {
         if (!rowId) return;
         
@@ -944,7 +970,6 @@
         } else {
             Swal.fire({ title: 'Rastreando atención...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
             
-            // CORREGIDO: Se envía explícitamente rowId en la query para que el script responda de forma efectiva
             fetch(`${URL_REGISTRO}?getHistorial=true&rowId=${rowId}`)
                 .then(res => res.json())
                 .then(data => {
@@ -1082,26 +1107,15 @@
 
         document.getElementById('rowId').value = reg.rowId;
         
-        // Conversión a formato YYYY-MM-DD para controles nativos de entrada tipo date
         if (reg.fechaAtencion) {
-            let f = reg.fechaAtencion;
-            if(f.includes('/')) {
-                let p = f.split('/');
-                if(p[2].length === 4) f = `${p[2]}-${paddingZero(p[1])}-${paddingZero(p[0])}`;
-            }
-            document.getElementById('fechaAtencion').value = f.split('T')[0];
+            document.getElementById('fechaAtencion').value = convertirAFechaInputHTML(reg.fechaAtencion);
         }
 
         document.getElementById('dni').value = reg.dni;
         document.getElementById('nombreCompleto').value = reg.nombreCompleto;
         
         if (reg.fn) {
-            let f = reg.fn;
-            if(f.includes('/')) {
-                let p = f.split('/');
-                if(p[2].length === 4) f = `${p[2]}-${paddingZero(p[1])}-${paddingZero(p[0])}`;
-            }
-            document.getElementById('fn').value = f.split('T')[0];
+            document.getElementById('fn').value = convertirAFechaInputHTML(reg.fn);
         }
 
         document.getElementById('sexo').value = reg.sexo;
@@ -1124,12 +1138,7 @@
         document.getElementById('vacunado').value = reg.vacunado;
         
         if (reg.fechaCita) {
-            let f = reg.fechaCita;
-            if(f.includes('/')) {
-                let p = f.split('/');
-                if(p[2].length === 4) f = `${p[2]}-${paddingZero(p[1])}-${paddingZero(p[0])}`;
-            }
-            document.getElementById('fechaCita').value = f.split('T')[0];
+            document.getElementById('fechaCita').value = convertirAFechaInputHTML(reg.fechaCita);
         }
 
         document.getElementById('espInfantil').value = reg.espInfantil;
@@ -1163,9 +1172,7 @@
                 document.getElementById('fichaFamiliar').value = data.ffamiliar;
                 document.getElementById('telefono').value = data.telefono;
                 document.getElementById('sector').value = data.sector;
-                if (data.fn && data.fn.includes('/')) {
-                    let p = data.fn.split('/'); document.getElementById('fn').value = `${p[2]}-${p[1]}-${p[0]}`;
-                } else { document.getElementById('fn').value = data.fn; }
+                document.getElementById('fn').value = convertirAFechaInputHTML(data.fn);
                 calcularEdad();
             }
         }).catch(() => Swal.fire("Error", "Fallo al conectar con el censo", "error"));
