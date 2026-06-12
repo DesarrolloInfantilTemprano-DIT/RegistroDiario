@@ -167,7 +167,7 @@
                         <div class="col-md-3 col-6">
                             <label class="form-label">Antiparasitario</label>
                             <select id="antiparasitario" class="form-select">
-                                <option value="">Ninguno</option>
+                                <option value="Ninguno">Ninguno</option>
                                 <option>Albendazol en Jarabe</option>
                                 <option>Mebendazol en Jarabe</option>
                                 <option>Albendazol en Tableta</option>
@@ -419,7 +419,7 @@
 
 <script>
     const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
-    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbxkdMH5n79swtaPq7GrHmgrFLFq0cLI42WRWLeg50jMfThI76F8UJ8FiTe3_glNedo5/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbzKmvF6sRuaJ8mS5PNvSqR6K81jX4Iy_4QdUMxCBQwO8pIGjYYvKfsomJV8IxVkUYht/exec";
 
     let historialCompleto = [];
     let kardexOriginal = []; 
@@ -453,6 +453,23 @@
         } else {
             contenedor.style.display = "none";
             boton.innerHTML = '<i class="fas fa-eye text-success"></i> Mostrar Módulo';
+        }
+    }
+
+    /* Sanitizador para prevenir strings largos de objetos de fecha nativos */
+    function formatearFechaLocal(fechaSucia) {
+        if (!fechaSucia) return "---";
+        try {
+            let fechaObj = new Date(fechaSucia);
+            if (isNaN(fechaObj.getTime())) {
+                return fechaSucia.split(" ")[0] || "---";
+            }
+            let dia = paddingZero(fechaObj.getDate());
+            let mes = paddingZero(fechaObj.getMonth() + 1);
+            let anio = fechaObj.getFullYear();
+            return `${dia}/${mes}/${anio}`;
+        } catch (e) {
+            return fechaSucia;
         }
     }
 
@@ -678,7 +695,11 @@
             for (let i = 5; i >= 0; i--) {
                 if (n.meses[i]) {
                     let partes = n.meses[i].split("/");
-                    ultimaFechaValida = new Date(partes[2], paddingZero(partes[1] - 1), paddingZero(partes[0]));
+                    if (partes.length === 3) {
+                        ultimaFechaValida = new Date(partes[2], paddingZero(partes[1] - 1), paddingZero(partes[0]));
+                    } else {
+                        ultimaFechaValida = new Date(n.meses[i]);
+                    }
                     break;
                 }
             }
@@ -709,7 +730,8 @@
             
             for (let i = 0; i < 7; i++) {
                 if (n.meses[i]) {
-                    fila += `<td class="text-center"><span class="fecha-click" onclick="editarDesdeRow(${n.rowIds[i]})">${n.meses[i]}</span></td>`;
+                    let fechaFormateada = formatearFechaLocal(n.meses[i]);
+                    fila += `<td class="text-center"><span class="fecha-click" onclick="editarDesdeRow(${n.rowIds[i]})">${fechaFormateada}</span></td>`;
                 } else {
                     fila += `<td class="mes-vacio">---</td>`;
                 }
@@ -737,7 +759,12 @@
             let coincideFecha = true;
             if (paciente.meses[0]) {
                 let partes = paciente.meses[0].split("/");
-                let fechaMes1 = new Date(partes[2], partes[1] - 1, partes[0]);
+                let fechaMes1;
+                if(partes.length === 3) {
+                    fechaMes1 = new Date(partes[2], partes[1] - 1, partes[0]);
+                } else {
+                    fechaMes1 = new Date(paciente.meses[0]);
+                }
                 
                 if (fDesde) {
                     let d = new Date(fDesde + "T00:00:00");
@@ -768,13 +795,11 @@
     function editarDesdeRow(rowId) {
         if (!rowId) return;
         
-        // Intentar localizar el registro en el historial precargado localmente
         const reg = historialCompleto.find(r => r.rowId == rowId);
         if (reg) {
             const index = historialCompleto.indexOf(reg);
             llenarParaEditar(index);
         } else {
-            // OPTIMIZACIÓN DE COMPATIBILIDAD: Si no está cargado localmente, lo descarga del servidor de inmediato
             Swal.fire({ title: 'Rastreando atención...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
             fetch(`${URL_REGISTRO}?getHistorial=true&palabraClave=${rowId}`)
                 .then(res => res.json())
@@ -802,13 +827,13 @@
             "DNI": p.dni,
             "Sector": p.sector || "---",
             "Teléfono": p.telefono || "---",
-            "MES-1": p.meses[0] || "---",
-            "MES-2": p.meses[1] || "---",
-            "MES-3": p.meses[2] || "---",
-            "MES-4": p.meses[3] || "---",
-            "MES-5": p.meses[4] || "---",
-            "MES-6": p.meses[5] || "---",
-            "MES-ALTA": p.meses[6] || "---"
+            "MES-1": formatearFechaLocal(p.meses[0]),
+            "MES-2": formatearFechaLocal(p.meses[1]),
+            "MES-3": formatearFechaLocal(p.meses[2]),
+            "MES-4": formatearFechaLocal(p.meses[3]),
+            "MES-5": formatearFechaLocal(p.meses[4]),
+            "MES-6": formatearFechaLocal(p.meses[5]),
+            "MES-ALTA": formatearFechaLocal(p.meses[6])
         }));
 
         const wb = XLSX.utils.book_new();
@@ -1035,14 +1060,12 @@
 
         const params = new URLSearchParams(datos).toString();
         
-        // INTERRUPCIÓN Y CORRECCIÓN DE NO-CORS: Leemos la respuesta HTTP de Apps Script para asegurar consistencia
         fetch(`${URL_REGISTRO}?${params}`, { method: 'GET' })
             .then(res => {
-                if (!res.ok) throw new Error("Error en la respuesta del servidor");
+                if (!res.ok) throw new Error();
                 return res.json();
             })
             .then(resData => {
-                // Si tu backend devuelve un JSON con estado de error estructural
                 if (resData && resData.status === "error") {
                     Swal.fire("Error del Servidor", resData.message || "No se pudo procesar.", "error");
                 } else {
@@ -1052,7 +1075,6 @@
                 }
             })
             .catch(() => {
-                // Fallback de contingencia histórica en caso de respuestas con redirecciones opacas de Google
                 Swal.fire("¡Éxito!", "Registro enviado correctamente a la Base de Datos.", "success");
                 limpiarFormulario();
                 if(historialCompleto.length > 0) consultarHistorialServidor();
