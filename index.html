@@ -23,7 +23,6 @@
             color: var(--text-dark);
         }
         
-        /* Decoraciones de Fondo Infantiles y Elegantes */
         body::before {
             content: "";
             position: fixed;
@@ -96,13 +95,11 @@
         .btn-edit { color: var(--primary-color); cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
         .btn-edit:hover { color: var(--primary-hover); transform: scale(1.15); }
         
-        /* Estilos para Kardex */
         .table-kardex { font-size: 0.85rem; min-width: 1100px; }
         .table-kardex th { background: #34495e !important; color: white !important; text-align: center; vertical-align: middle; padding: 10px; }
         .fecha-click { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
         .mes-vacio { color: #ccc; font-style: italic; font-size: 0.75rem; text-align: center; }
 
-        /* Estilos Modernos Dashboard de Estadísticas */
         .modal-stats-dark .modal-content { background: #111827; color: #f3f4f6; border-radius: 16px; border: 1px solid #374151; }
         .modal-stats-dark .modal-header { border-bottom: 1px solid #1f2937; }
         .modal-stats-dark .modal-footer { border-top: 1px solid #1f2937; }
@@ -120,7 +117,6 @@
         .podium-name { font-size: 0.85rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; color: #f9fafb; }
         .podium-count { font-size: 1.5rem; font-weight: 800; display: block; margin-top: 4px; }
         
-        /* Botones estilizados */
         .btn-lg { border-radius: 12px; font-weight: 600; padding: 12px 24px; font-size: 1rem; }
         .btn-primary { background-color: var(--primary-color); border: none; }
         .btn-primary:hover { background-color: var(--primary-hover); }
@@ -394,7 +390,7 @@
                         </div>
                         <div class="col-md-2 col-6">
                             <label class="form-label small text-muted">Mes Hierro</label>
-                            <select id="filtroMes" class="form-control form-control-sm" onchange="aplicarFiltrosLocalesHistorial()">
+                            <select id="filtroMes" class="form-control form-select-sm" onchange="aplicarFiltrosLocalesHistorial()">
                                 <option value="">Todos</option>
                                 <option value="1">Mes 1</option><option value="2">Mes 2</option>
                                 <option value="3">Mes 3</option><option value="4">Mes 4</option>
@@ -543,21 +539,69 @@
         }
     }
 
-    /* Formateador seguro de objetos Date y strings largos de bases de datos */
+    /* CORREGIDO: Formateador quirúrgico que fuerza estrictamente el formato DD/MM/YYYY e ignora errores nativos de fecha */
     function formatearFechaLocal(fechaSucia) {
         if (!fechaSucia) return "---";
+        let texto = String(fechaSucia).trim();
+        if (texto === "" || texto === "---") return "---";
+
+        // Si viene con formato de hora integrada (ej: "2026-05-15T05:00:00.000Z" o similar)
+        if (texto.includes('T')) {
+            texto = texto.split('T')[0];
+        } else if (texto.includes(' ')) {
+            texto = texto.split(' ')[0];
+        }
+
+        let anio = "", mes = "", dia = "";
+
+        if (texto.includes('-')) {
+            let partes = texto.split('-');
+            if (partes[0].length === 4) { // YYYY-MM-DD
+                anio = partes[0]; mes = partes[1]; dia = partes[2];
+            } else if (partes[2].length === 4) { // DD-MM-YYYY o MM-DD-YYYY
+                // Evaluamos si el primer elemento puede ser el mes o dia
+                if (parseInt(partes[0]) > 12) {
+                    dia = partes[0]; mes = partes[1]; anio = partes[2];
+                } else {
+                    // Por precaución asumimos DD-MM-YYYY estándar si viene de bases locales limpias
+                    dia = partes[0]; mes = partes[1]; anio = partes[2];
+                }
+            }
+        } else if (texto.includes('/')) {
+            let partes = texto.split('/');
+            if (partes[2].length === 4) { // DD/MM/YYYY o MM/DD/YYYY
+                // Si el del medio es mayor a 12, es definitivamente MM/DD/YYYY americano
+                if (parseInt(partes[1]) > 12) {
+                    dia = partes[1]; mes = partes[0]; anio = partes[2];
+                } else if (parseInt(partes[0]) > 12) { // DD/MM/YYYY claro
+                    dia = partes[0]; mes = partes[1]; anio = partes[2];
+                } else {
+                    // Si ambos son menores a 12 pero el backend mandó formato americano detectado por análisis visual:
+                    // Por seguridad en javascript, si el archivo de censo o registro asienta MM/DD/YYYY:
+                    dia = partes[1]; mes = partes[0]; anio = partes[2];
+                }
+            } else if (partes[0].length === 4) { // YYYY/MM/DD
+                anio = partes[0]; mes = partes[1]; dia = partes[2];
+            }
+        }
+
+        // Si logramos capturar los componentes de forma segura rearmamos la cadena limpia
+        if (dia && mes && anio) {
+            return `${paddingZero(parseInt(dia))}/${paddingZero(parseInt(mes))}/${anio}`;
+        }
+
+        // Respaldo nativo controlado si fallan las reglas de arriba
         try {
             let fechaObj = new Date(fechaSucia);
-            if (isNaN(fechaObj.getTime())) {
-                return fechaSucia.split(" ")[0] || "---";
+            if (!isNaN(fechaObj.getTime())) {
+                let d = paddingZero(fechaObj.getDate());
+                let m = paddingZero(fechaObj.getMonth() + 1);
+                let y = fechaObj.getFullYear();
+                return `${d}/${m}/${y}`;
             }
-            let dia = paddingZero(fechaObj.getDate());
-            let mes = paddingZero(fechaObj.getMonth() + 1);
-            let anio = fechaObj.getFullYear();
-            return `${dia}/${mes}/${anio}`;
-        } catch (e) {
-            return fechaSucia;
-        }
+        } catch (e) {}
+
+        return fechaSucia; // Retorno de última instancia
     }
 
     function abrirModalEstadisticas() {
@@ -593,27 +637,27 @@
             }
         });
 
-        const rankingOrdenado = Object.keys(mapeoConteo).map(key => {
+        const rankingOrdenOrder = Object.keys(mapeoConteo).map(key => {
             return { nombre: key, cantidad: mapeoConteo[key] };
         }).sort((a, b) => b.cantidad - a.cantidad);
 
         document.getElementById('statsTotalAtenciones').innerText = filtrados.length;
-        document.getElementById('statsTotalEspecialistas').innerText = rankingOrdenado.length;
+        document.getElementById('statsTotalEspecialistas').innerText = rankingOrdenOrder.length;
 
         const podioContainer = document.getElementById('podioEspecialistas');
         const tbodyRanking = document.getElementById('statsTablaCuerpo');
         podioContainer.innerHTML = "";
         tbodyRanking.innerHTML = "";
 
-        if(rankingOrdenado.length === 0) {
+        if(rankingOrdenOrder.length === 0) {
             podioContainer.innerHTML = '<div class="text-center text-muted py-3 w-100">No hay atenciones vinculadas a especialistas en este rango de fechas.</div>';
             tbodyRanking.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Sin datos disponibles</td></tr>';
             return;
         }
 
-        const p1 = rankingOrdenado[0] || { nombre: "---", cantidad: 0 };
-        const p2 = rankingOrdenado[1] || { nombre: "---", cantidad: 0 };
-        const p3 = rankingOrdenado[2] || { nombre: "---", cantidad: 0 };
+        const p1 = rankingOrdenOrder[0] || { nombre: "---", cantidad: 0 };
+        const p2 = rankingOrdenOrder[1] || { nombre: "---", cantidad: 0 };
+        const p3 = rankingOrdenOrder[2] || { nombre: "---", cantidad: 0 };
 
         podioContainer.innerHTML = `
             <div class="podium-place podium-2">
@@ -637,7 +681,7 @@
             </div>
         `;
 
-        rankingOrdenado.forEach((esp, idx) => {
+        rankingOrdenOrder.forEach((esp, idx) => {
             const porcentaje = filtrados.length > 0 ? ((esp.cantidad / filtrados.length) * 100).toFixed(1) : 0;
             tbodyRanking.innerHTML += `
                 <tr>
@@ -656,6 +700,7 @@
         });
     }
 
+    /* CORREGIDO: Solución al envío de parámetros vacíos al backend cuando no hay rango de fechas seleccionado */
     function consultarHistorialServidor() {
         const fDesde = document.getElementById('filtroDesde').value;
         const fHasta = document.getElementById('filtroHasta').value;
@@ -669,7 +714,13 @@
 
         tbody.innerHTML = '<tr><td colspan="8" class="text-center"><i class="fas fa-spinner fa-spin me-2"></i>Consultando el historial en el servidor...</td></tr>';
 
-        let urlFinal = `${URL_REGISTRO}?getHistorial=true&palabraClave=${encodeURIComponent(palabraClave)}&desde=${fDesde}&hasta=${fHasta}`;
+        // Construcción limpia de la URL de consulta
+        let urlFinal = `${URL_REGISTRO}?getHistorial=true&palabraClave=${encodeURIComponent(palabraClave)}`;
+        
+        // Solo agregamos las fechas si el usuario explícitamente las definió para no romper la respuesta del servidor
+        if (fDesde && fHasta) {
+            urlFinal += `&desde=${fDesde}&hasta=${fHasta}`;
+        }
 
         fetch(urlFinal)
             .then(res => res.json())
@@ -682,7 +733,6 @@
             });
     }
 
-    /* CORREGIDO: Filtro local inteligente que no limpia la pantalla si las fechas están en blanco */
     function aplicarFiltrosLocalesHistorial() {
         const fDesde = document.getElementById('filtroDesde').value;
         const fHasta = document.getElementById('filtroHasta').value;
@@ -694,7 +744,6 @@
             let cumpleMes = true;
             let cumpleBusqueda = true;
             
-            // Si las fechas del filtro están en blanco, ignoramos la regla de fecha local para no borrar la pantalla
             if (fDesde && fHasta) {
                 cumpleFecha = (reg.fechaAtencion >= fDesde && reg.fechaAtencion <= fHasta);
             }
@@ -718,19 +767,7 @@
 
         datos.forEach((reg) => {
             const indexOriginal = historialCompleto.indexOf(reg);
-            
-            let fechaFormateada = reg.fechaAtencion;
-            if (fechaFormateada && fechaFormateada.includes('-')) {
-                const partes = fechaFormateada.split('-');
-                if (partes[0].length === 4) {
-                    fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
-                }
-            } else if (fechaFormateada && fechaFormateada.includes('/')) {
-                const partes = fechaFormateada.split('/');
-                if (partes[0].length === 4) {
-                    fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
-                }
-            }
+            let fechaFormateada = formatearFechaLocal(reg.fechaAtencion);
 
             tbody.innerHTML += `
                 <tr>
@@ -896,6 +933,7 @@
         dibujarKardex(kardexOriginal);
     }
 
+    /* CORREGIDO: El fetch ahora envía correctamente el rowId para jalar los datos específicos desde la hoja de cálculo de atenciones */
     function editarDesdeRow(rowId) {
         if (!rowId) return;
         
@@ -905,7 +943,9 @@
             llenarParaEditar(index);
         } else {
             Swal.fire({ title: 'Rastreando atención...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
-            fetch(`${URL_REGISTRO}?getHistorial=true&palabraClave=${rowId}`)
+            
+            // CORREGIDO: Se envía explícitamente rowId en la query para que el script responda de forma efectiva
+            fetch(`${URL_REGISTRO}?getHistorial=true&rowId=${rowId}`)
                 .then(res => res.json())
                 .then(data => {
                     Swal.close();
@@ -969,10 +1009,10 @@
         }
 
         const datosFormateados = filtrados.map(reg => ({
-            "Fecha Atención": reg.fechaAtencion,
+            "Fecha Atención": formatearFechaLocal(reg.fechaAtencion),
             "Nombres y Apellidos": reg.nombreCompleto,
             "DNI": reg.dni,
-            "F. Nacimiento": reg.fn,
+            "F. Nacimiento": formatearFechaLocal(reg.fn),
             "Sexo": reg.sexo,
             "Edad": reg.edad,
             "H.C.": reg.hc,
@@ -992,7 +1032,7 @@
             "Unid. Antip.": reg.unidadesAntip,
             "N° Vitamina A": reg.vitaminaA,
             "Vacunado": reg.vacunado,
-            "Fecha Cita": reg.fechaCita,
+            "Fecha Cita": formatearFechaLocal(reg.fechaCita),
             "Esp. Infantil": reg.espInfantil,
             "Asist. Especialidad": reg.asistEspecialidad || "---"
         }));
@@ -1041,10 +1081,29 @@
         if (!reg) return;
 
         document.getElementById('rowId').value = reg.rowId;
-        document.getElementById('fechaAtencion').value = reg.fechaAtencion;
+        
+        // Conversión a formato YYYY-MM-DD para controles nativos de entrada tipo date
+        if (reg.fechaAtencion) {
+            let f = reg.fechaAtencion;
+            if(f.includes('/')) {
+                let p = f.split('/');
+                if(p[2].length === 4) f = `${p[2]}-${paddingZero(p[1])}-${paddingZero(p[0])}`;
+            }
+            document.getElementById('fechaAtencion').value = f.split('T')[0];
+        }
+
         document.getElementById('dni').value = reg.dni;
         document.getElementById('nombreCompleto').value = reg.nombreCompleto;
-        document.getElementById('fn').value = reg.fn;
+        
+        if (reg.fn) {
+            let f = reg.fn;
+            if(f.includes('/')) {
+                let p = f.split('/');
+                if(p[2].length === 4) f = `${p[2]}-${paddingZero(p[1])}-${paddingZero(p[0])}`;
+            }
+            document.getElementById('fn').value = f.split('T')[0];
+        }
+
         document.getElementById('sexo').value = reg.sexo;
         document.getElementById('hc').value = reg.hc;
         document.getElementById('fichaFamiliar').value = reg.ficha;
@@ -1063,7 +1122,16 @@
         document.getElementById('unidadesAntip').value = reg.unidadesAntip;
         document.getElementById('vitaminaA').value = reg.vitaminaA;
         document.getElementById('vacunado').value = reg.vacunado;
-        document.getElementById('fechaCita').value = reg.fechaCita;
+        
+        if (reg.fechaCita) {
+            let f = reg.fechaCita;
+            if(f.includes('/')) {
+                let p = f.split('/');
+                if(p[2].length === 4) f = `${p[2]}-${paddingZero(p[1])}-${paddingZero(p[0])}`;
+            }
+            document.getElementById('fechaCita').value = f.split('T')[0];
+        }
+
         document.getElementById('espInfantil').value = reg.espInfantil;
         document.getElementById('asistEspecialidad').value = reg.asistEspecialidad;
         
