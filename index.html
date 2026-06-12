@@ -656,7 +656,6 @@
         });
     }
 
-    /* CAMBIO: Se remueve la obligatoriedad de ingresar un rango de fechas si se busca por DNI/Palabra Clave */
     function consultarHistorialServidor() {
         const fDesde = document.getElementById('filtroDesde').value;
         const fHasta = document.getElementById('filtroHasta').value;
@@ -683,6 +682,7 @@
             });
     }
 
+    /* CORREGIDO: Filtro local inteligente que no limpia la pantalla si las fechas están en blanco */
     function aplicarFiltrosLocalesHistorial() {
         const fDesde = document.getElementById('filtroDesde').value;
         const fHasta = document.getElementById('filtroHasta').value;
@@ -690,8 +690,11 @@
         const busqueda = document.getElementById('busquedaHistorial').value.toLowerCase().trim();
 
         const filtrados = historialCompleto.filter(reg => {
-            let cumpleFecha = true, cumpleMes = true, cumpleBusqueda = true;
+            let cumpleFecha = true;
+            let cumpleMes = true;
+            let cumpleBusqueda = true;
             
+            // Si las fechas del filtro están en blanco, ignoramos la regla de fecha local para no borrar la pantalla
             if (fDesde && fHasta) {
                 cumpleFecha = (reg.fechaAtencion >= fDesde && reg.fechaAtencion <= fHasta);
             }
@@ -704,7 +707,6 @@
         dibujarTablaHistorial(filtrados);
     }
 
-    /* CAMBIO: Formateador visual directo dentro de la iteración de la tabla a formato latino dd/mm/yyyy */
     function dibujarTablaHistorial(datos) {
         const tbody = document.getElementById('tablaCuerpo');
         tbody.innerHTML = "";
