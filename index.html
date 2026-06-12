@@ -6,21 +6,99 @@
     <title>Registro de Atención Infantil - SIGIS_FED</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Segoe+UI:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f4f7f6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .card { border: none; border-top: 5px solid #2c3e50; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .section-title { background: #e9ecef; padding: 10px; border-radius: 5px; font-weight: bold; color: #2c3e50; margin-bottom: 20px; }
-        .btn-search { background-color: #2c3e50; color: white; transition: 0.3s; }
-        .btn-search:hover { background-color: #34495e; color: white; }
-        .form-label { font-weight: 500; font-size: 0.9rem; color: #555; }
-        .req-color { color: #d9534f; font-weight: bold; }
-        .table-container { max-height: 400px; overflow-y: auto; }
-        .btn-edit { color: #3498db; cursor: pointer; font-size: 1.2rem; }
-        .btn-edit:hover { color: #2980b9; }
+        :root {
+            --primary-color: #4ba3e3;
+            --primary-hover: #358ecb;
+            --secondary-color: #57cc99;
+            --bg-soft: #f0f7fc;
+            --text-dark: #2c3e50;
+            --card-radius: 16px;
+        }
+        
+        body { 
+            background-color: var(--bg-soft); 
+            font-family: 'Quicksand', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-dark);
+        }
+        
+        /* Decoraciones de Fondo Infantiles y Elegantes */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 20px; right: 30px;
+            font-family: "Font Awesome 6 Free"; font-weight: 900;
+            content: "\f1b0"; color: rgba(75, 163, 227, 0.08); font-size: 5rem;
+            z-index: -1;
+        }
+        body::after {
+            content: "";
+            position: fixed;
+            bottom: 40px; left: 30px;
+            font-family: "Font Awesome 6 Free"; font-weight: 900;
+            content: "\f1fd"; color: rgba(87, 204, 153, 0.08); font-size: 5rem;
+            z-index: -1;
+        }
+
+        .card { 
+            border: none; 
+            border-top: 6px solid var(--primary-color); 
+            border-radius: var(--card-radius); 
+            box-shadow: 0 8px 24px rgba(149, 157, 165, 0.15);
+            background-color: #ffffff;
+            transition: transform 0.2s;
+        }
+        
+        .main-title {
+            font-weight: 700;
+            color: var(--primary-color);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .section-title { 
+            background: linear-gradient(45deg, #e6f2ff, #f0f7fc); 
+            padding: 12px 16px; 
+            border-radius: 10px; 
+            font-weight: 700; 
+            color: #2b6cb0; 
+            margin-bottom: 20px; 
+            border-left: 5px solid var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-search { 
+            background-color: var(--primary-color); 
+            color: white; 
+            transition: 0.3s; 
+            border-radius: 0 10px 10px 0;
+        }
+        .btn-search:hover { background-color: var(--primary-hover); color: white; }
+        
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 1.5px solid #d2d6dc;
+            padding: 10px 12px;
+            font-family: 'Segoe UI', sans-serif;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(75, 163, 227, 0.2);
+        }
+
+        .form-label { font-weight: 600; font-size: 0.9rem; color: #4a5568; margin-bottom: 6px; }
+        .req-color { color: #e53e3e; font-weight: bold; }
+        .table-container { max-height: 400px; overflow-y: auto; border-radius: 12px; }
+        .btn-edit { color: var(--primary-color); cursor: pointer; font-size: 1.2rem; transition: 0.2s; }
+        .btn-edit:hover { color: var(--primary-hover); transform: scale(1.15); }
         
         /* Estilos para Kardex */
         .table-kardex { font-size: 0.85rem; min-width: 1100px; }
-        .table-kardex th { background: #2c3e50 !important; color: white !important; text-align: center; vertical-align: middle; }
+        .table-kardex th { background: #34495e !important; color: white !important; text-align: center; vertical-align: middle; padding: 10px; }
         .fecha-click { color: #007bff; text-decoration: underline; cursor: pointer; font-weight: bold; }
         .mes-vacio { color: #ccc; font-style: italic; font-size: 0.75rem; text-align: center; }
 
@@ -42,6 +120,15 @@
         .podium-name { font-size: 0.85rem; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; color: #f9fafb; }
         .podium-count { font-size: 1.5rem; font-weight: 800; display: block; margin-top: 4px; }
         
+        /* Botones estilizados */
+        .btn-lg { border-radius: 12px; font-weight: 600; padding: 12px 24px; font-size: 1rem; }
+        .btn-primary { background-color: var(--primary-color); border: none; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: #a0aec0; border: none; }
+        .btn-secondary:hover { background-color: #718096; }
+        .btn-success { background-color: var(--secondary-color); border: none; }
+        .btn-success:hover { background-color: #43b584; }
+
         @keyframes floatTrophy {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-6px); }
@@ -64,7 +151,7 @@
         <div class="col-12">
             
             <div class="card p-4 mb-4">
-                <h3 class="text-center mb-4"><i class="fas fa-clipboard-list me-2"></i>Registro de Atención DIT </h3>
+                <h3 class="text-center mb-4 main-title"><i class="fas fa-child me-2 text-warning"></i>Registro de Atención DIT</h3>
                 
                 <form id="registroForm">
                     <input type="hidden" id="rowId" value="">
@@ -74,7 +161,7 @@
                             <label class="form-label">Consultar por DNI</label>
                             <div class="input-group">
                                 <input type="text" id="dni" class="form-control" placeholder="Ingrese DNI..." required maxlength="8" pattern="\d*">
-                                <button type="button" class="btn btn-search" onclick="buscarCenso()"><i class="fas fa-search"></i></button>
+                                <button type="button" class="btn btn-search" onclick="buscarCenso()"><i class="fas fa-search me-1"></i> Buscar</button>
                             </div>
                         </div>
                         <div class="col-md-6 col-12">
@@ -83,11 +170,11 @@
                         </div>
                     </div>
 
-                    <div class="section-title">Datos Personales</div>
+                    <div class="section-title"><i class="fas fa-user text-primary"></i> Datos Personales del Niño/a</div>
                     <div class="row g-3 mb-4">
                         <div class="col-md-5 col-12">
                             <label class="form-label">Apellidos y Nombres</label>
-                            <input type="text" id="nombreCompleto" class="form-control bg-light" readonly style="text-transform: uppercase;">
+                            <input type="text" id="nombreCompleto" class="form-control bg-light" readonly style="text-transform: uppercase; font-weight: 600;">
                         </div>
                         <div class="col-md-3 col-12">
                             <label class="form-label">Fecha de Nacimiento</label>
@@ -99,11 +186,11 @@
                         </div>
                         <div class="col-md-2 col-6">
                             <label class="form-label">Edad</label>
-                            <input type="text" id="edad" class="form-control bg-info-subtle" readonly placeholder="Automático">
+                            <input type="text" id="edad" class="form-control bg-info-subtle text-dark fw-bold" readonly placeholder="Automático">
                         </div>
                     </div>
 
-                    <div class="section-title">Datos Administrativos y Sectorización</div>
+                    <div class="section-title"><i class="fas fa-map-marked-alt text-success"></i> Datos Administrativos y Sectorización</div>
                     <div class="row g-3 mb-4">
                         <div class="col-md-3 col-6">
                             <label class="form-label">Historia Clínica</label>
@@ -119,11 +206,11 @@
                         </div>
                         <div class="col-md-3 col-6">
                             <label class="form-label">Sector</label>
-                            <input type="text" id="sector" class="form-control bg-light" readonly style="text-transform: uppercase;">
+                            <input type="text" id="sector" class="form-control bg-light fw-bold" readonly style="text-transform: uppercase;">
                         </div>
                     </div>
 
-                    <div class="section-title">Evaluación Nutricional y Suplementación</div>
+                    <div class="section-title"><i class="fas fa-apple-alt text-warning"></i> Evaluación Nutricional y Suplementación</div>
                     <div class="row g-3 mb-4">
                         <div class="col-md-2 col-6"><label class="form-label">N° CRED</label><input type="text" id="cred" class="form-control"></div>
                         <div class="col-md-2 col-6">
@@ -136,7 +223,7 @@
                         </div>
                         <div class="col-md-2 col-6">
                             <label class="form-label">IMC</label>
-                            <input type="text" id="imc" class="form-control bg-info-subtle" readonly placeholder="Auto">
+                            <input type="text" id="imc" class="form-control bg-info-subtle text-dark" readonly placeholder="Auto">
                         </div>
                         <div class="col-md-2 col-6"><label class="form-label">Resultado HemoHb</label><input type="text" id="hb" class="form-control"></div>
                         <div class="col-md-2 col-6">
@@ -152,7 +239,7 @@
                         </div>
                     </div>
 
-                    <div class="section-title">Tratamiento, Vacunas y Citas</div>
+                    <div class="section-title"><i class="fas fa-syringe text-danger"></i> Tratamiento, Vacunas y Citas</div>
                     <div class="row g-3 mb-4">
                         <div class="col-md-2 col-6"><label class="form-label">N° Unid. Hierro</label><input type="number" id="unidadesHierro" class="form-control"></div>
                         <div class="col-md-2 col-6">
@@ -196,7 +283,7 @@
                         </div>
                     </div>
 
-                    <div class="section-title">Responsables de Atención</div>
+                    <div class="section-title"><i class="fas fa-user-md text-info"></i> Responsables de Atención</div>
                     <div class="row g-3 mb-4">
                         <div class="col-md-6 col-12">
                             <label class="form-label">Esp. Infantil <span class="req-color">*</span></label>
@@ -218,8 +305,8 @@
             </div>
 
             <div class="card p-4 mb-4">
-                <div class="section-title d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <span><i class="fas fa-arrows-alt-h me-2"></i>Seguimiento al Tratamiento de Anemia (Kardex)</span>
+                <div class="section-title d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: linear-gradient(45deg, #eafaf1, #f4fbf7); border-left-color: var(--secondary-color);">
+                    <span style="color: #276749;"><i class="fas fa-star text-warning me-2"></i>Seguimiento al Tratamiento de Anemia (Kardex)</span>
                     <div class="d-flex gap-2 text-end">
                         <button class="btn btn-sm btn-success text-white" onclick="exportarExcelKardex()"><i class="fas fa-file-excel me-1"></i> Exportar Excel</button>
                         <button class="btn btn-sm btn-outline-secondary" type="button" id="btnToggleKardex" onclick="toggleModuloKardex()">
@@ -284,8 +371,8 @@
             </div>
 
             <div class="card p-4">
-                <div class="section-title d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <span><i class="fas fa-search-plus me-2"></i>Búsqueda Avanzada en Historial</span>
+                <div class="section-title d-flex justify-content-between align-items-center flex-wrap gap-2" style="background: linear-gradient(45deg, #fffbe6, #fffdf0); border-left-color: #ecc94b;">
+                    <span style="color: #b7791f;"><i class="fas fa-search-plus me-2"></i>Búsqueda Avanzada en Historial</span>
                     <div class="d-flex gap-2 text-end">
                         <button class="btn btn-sm text-white" style="background: linear-gradient(135deg, #6366f1, #4f46e5); border: none;" onclick="abrirModalEstadisticas()"><i class="fas fa-chart-bar me-1"></i> Ver Estadísticas</button>
                         <button class="btn btn-sm btn-success text-white" onclick="exportarExcelHistorial()"><i class="fas fa-file-excel me-1"></i> Exportar Excel</button>
@@ -315,12 +402,12 @@
                                 <option value="7">Mes 7</option>
                             </select>
                         </div>
-                        <div class="col-md-2 col-6">
-                            <label class="form-label small text-muted">Palabra Clave</label>
-                            <input type="text" id="busquedaHistorial" class="form-control form-control-sm" placeholder="DNI o Nombre..." onkeyup="aplicarFiltrosLocalesHistorial()">
+                        <div class="col-md-3 col-6">
+                            <label class="form-label small fw-bold text-dark">DNI o Nombre de Paciente</label>
+                            <input type="text" id="busquedaHistorial" class="form-control form-control-sm border-primary" placeholder="Escriba DNI o Nombre..." onkeyup="aplicarFiltrosLocalesHistorial()">
                         </div>
-                        <div class="col-md-2 col-12 d-flex align-items-end gap-1">
-                            <button class="btn btn-search btn-sm w-100" onclick="consultarHistorialServidor()"><i class="fas fa-filter"></i> Filtrar / Buscar</button>
+                        <div class="col-md-1 col-6 d-flex align-items-end gap-1">
+                            <button class="btn btn-search btn-sm w-100" onclick="consultarHistorialServidor()" title="Buscar Ahora"><i class="fas fa-search"></i></button>
                             <button class="btn btn-outline-secondary btn-sm" onclick="limpiarCamposHistorial()"><i class="fas fa-eraser"></i></button>
                         </div>
                     </div>
@@ -340,7 +427,7 @@
                                 </tr>
                             </thead>
                             <tbody id="tablaCuerpo">
-                                <tr><td colspan="8" class="text-center text-muted">Establezca los parámetros de rango de fechas o DNI y haga clic en "Filtrar / Buscar"</td></tr>
+                                <tr><td colspan="8" class="text-center text-muted">Establezca los parámetros de búsqueda o DNI y haga clic en el botón de la lupa</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -419,7 +506,7 @@
 
 <script>
     const URL_CENSO = "https://script.google.com/macros/s/AKfycbwkYPuO13juZBjhs7wrxX0MEYy-hPeg0HyzjDJ9_Oy-Yq3Fih99wFAyI5xlbJ_u4rBX1g/exec";
-    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbzKmvF6sRuaJ8mS5PNvSqR6K81jX4Iy_4QdUMxCBQwO8pIGjYYvKfsomJV8IxVkUYht/exec";
+    const URL_REGISTRO = "https://script.google.com/macros/s/AKfycbyDc4zQrmeMQpzDHBrn4Yp4CGleBW-grUARJWJ6rYHFYtXJE0iF25QL5tfjiHMJebgZ/exec";
 
     let historialCompleto = [];
     let kardexOriginal = []; 
@@ -456,7 +543,7 @@
         }
     }
 
-    /* Sanitizador para prevenir strings largos de objetos de fecha nativos */
+    /* Formateador seguro de objetos Date y strings largos de bases de datos */
     function formatearFechaLocal(fechaSucia) {
         if (!fechaSucia) return "---";
         try {
@@ -473,10 +560,9 @@
         }
     }
 
-    /* Funciones del Módulo Estadístico por Especialista Infantil */
     function abrirModalEstadisticas() {
         if (historialCompleto.length === 0) {
-            Swal.fire("Historial sin datos", "Por favor, realice primero una consulta con el botón 'Filtrar / Buscar' en el Historial para sincronizar los datos estadísticos.", "info");
+            Swal.fire("Historial sin datos", "Por favor, realice primero una consulta con el botón de buscar en el Historial para sincronizar las estadísticas.", "info");
             return;
         }
         document.getElementById('statsDesde').value = document.getElementById('filtroDesde').value;
@@ -570,6 +656,7 @@
         });
     }
 
+    /* CAMBIO: Se remueve la obligatoriedad de ingresar un rango de fechas si se busca por DNI/Palabra Clave */
     function consultarHistorialServidor() {
         const fDesde = document.getElementById('filtroDesde').value;
         const fHasta = document.getElementById('filtroHasta').value;
@@ -577,7 +664,7 @@
         const tbody = document.getElementById('tablaCuerpo');
 
         if (!palabraClave && (!fDesde || !fHasta)) {
-            Swal.fire("Criterios requeridos", "Por favor ingrese un rango de fechas completo o una Palabra Clave (DNI/Nombre) para realizar la consulta.", "warning");
+            Swal.fire("Criterios requeridos", "Por favor ingrese un rango de fechas completo o un DNI / Nombre de Paciente para buscar.", "warning");
             return;
         }
 
@@ -592,7 +679,7 @@
                 aplicarFiltrosLocalesHistorial();
             })
             .catch(() => { 
-                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No se encontraron registros que coincidan con los filtros aplicados</td></tr>'; 
+                tbody.innerHTML = '<tr><td colspan="8" class="text-center text-muted">No se encontraron registros en el historial físico</td></tr>'; 
             });
     }
 
@@ -617,6 +704,7 @@
         dibujarTablaHistorial(filtrados);
     }
 
+    /* CAMBIO: Formateador visual directo dentro de la iteración de la tabla a formato latino dd/mm/yyyy */
     function dibujarTablaHistorial(datos) {
         const tbody = document.getElementById('tablaCuerpo');
         tbody.innerHTML = "";
@@ -628,9 +716,23 @@
 
         datos.forEach((reg) => {
             const indexOriginal = historialCompleto.indexOf(reg);
+            
+            let fechaFormateada = reg.fechaAtencion;
+            if (fechaFormateada && fechaFormateada.includes('-')) {
+                const partes = fechaFormateada.split('-');
+                if (partes[0].length === 4) {
+                    fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                }
+            } else if (fechaFormateada && fechaFormateada.includes('/')) {
+                const partes = fechaFormateada.split('/');
+                if (partes[0].length === 4) {
+                    fechaFormateada = `${partes[2]}/${partes[1]}/${partes[0]}`;
+                }
+            }
+
             tbody.innerHTML += `
                 <tr>
-                    <td>${reg.fechaAtencion}</td>
+                    <td class="fw-bold">${fechaFormateada}</td>
                     <td>${reg.dni}</td>
                     <td>${reg.nombreCompleto}</td>
                     <td class="text-center"><span class="badge bg-secondary">${reg.mesHierro || '-'}</span></td>
@@ -649,7 +751,7 @@
         document.getElementById('filtroHasta').value = "";
         document.getElementById('filtroMes').value = "";
         document.getElementById('busquedaHistorial').value = "";
-        document.getElementById('tablaCuerpo').innerHTML = '<tr><td colspan="8" class="text-center text-muted">Establezca los parámetros de rango de fechas o DNI y haga clic en "Filtrar / Buscar"</td></tr>';
+        document.getElementById('tablaCuerpo').innerHTML = '<tr><td colspan="8" class="text-center text-muted">Establezca los parámetros de búsqueda o DNI y haga clic en el botón de la lupa</td></tr>';
     }
 
     function cargarVistaHorizontal() {
@@ -965,7 +1067,7 @@
         
         calcularEdad();
         window.scrollTo({ top: 0, behavior: 'smooth' });
-        Swal.fire({ title: "Modo Edición", text: "Datos cargados correctamente.", icon: "info", timer: 1500, showConfirmButton: false });
+        Swal.fire({ title: "Modo Edición", text: "Datos del niño/a cargados para modificar.", icon: "info", timer: 1500, showConfirmButton: false });
     }
 
     function limpiarFormulario() {
@@ -979,11 +1081,11 @@
     function buscarCenso() {
         let dni = document.getElementById('dni').value;
         if(!dni) return Swal.fire("Atención", "Ingrese un DNI", "warning");
-        Swal.fire({ title: 'Buscando...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
+        Swal.fire({ title: 'Buscando en el Censo...', allowOutsideClick: false, didOpen: () => { Swal.showLoading() } });
         fetch(`${URL_CENSO}?dni=${dni}`).then(res => res.json()).then(data => {
             Swal.close();
             if (data.status === "error" || !data.nombreB) {
-                Swal.fire("No encontrado", "DNI no existe en Censo", "error");
+                Swal.fire("No encontrado", "El DNI no existe en el sistema Censo", "error");
             } else {
                 document.getElementById('nombreCompleto').value = data.nombreB;
                 document.getElementById('sexo').value = data.sexo;
@@ -996,7 +1098,7 @@
                 } else { document.getElementById('fn').value = data.fn; }
                 calcularEdad();
             }
-        }).catch(() => Swal.fire("Error", "Fallo al conectar", "error"));
+        }).catch(() => Swal.fire("Error", "Fallo al conectar con el censo", "error"));
     }
 
     function calcularEdad() {
